@@ -67,11 +67,10 @@
     <div class="text-left">
         <h3>Buy tickets or check your journey below:</h3>
         <br />
-        <select>
-            @foreach (string n in stationList)
-            {
-                <option>@n</option>
-            }
-        </select>
+        @{SelectList selDeparture = new SelectList(stationList);}
+
+        @Html.DropDownList("selDeparture",selDeparture);
+
+        <input type="button" value="Search" onclick="location.href='@Url.Action("Home", "Result")'"/>
     </div>
 </div>

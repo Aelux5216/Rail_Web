@@ -18,6 +18,13 @@ namespace Rail_Web.Controllers
             return View();
         }
 
+        public IActionResult Result(string id)
+        {
+            Request.Form["selDeparture"]
+            string s = id;
+            return View();
+        }
+
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";
