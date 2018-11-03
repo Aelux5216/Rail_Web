@@ -1,31 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
 using System.Net;
 using Microsoft.AspNetCore.Http.Extensions;
 using Rail_Web.Models;
+using System.Text;
+using System.Net.Sockets;
+using Microsoft.AspNetCore.Http;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Rail_Web.Controllers
 {
     public class HomeController : Controller
     {
+        public List<string> departures;
+
         public IActionResult Index()
         {
             TempData["stations"] = getStations();
             return View();
         }
 
-        public IActionResult Result()
+        public async Task<IActionResult> Result()
         {
             //Get current id
             string s = Request.GetDisplayUrl().Split('(')[1].Trim(')');
 
-            //Grab times from middleware
+            s = "test{" + s;
 
+            //Grab times from middleware
+            Send(s);
+
+            await Task.Run(() => Read());
+
+            TempData["depart"] = departures;
 
             return View();
         }
@@ -106,6 +117,66 @@ namespace Rail_Web.Controllers
             }
 
             return stationList;
+        }
+
+        public class ClientInfo //TCP client class.
+        {
+            public TcpClient socket = null;    //Initalize default tcpclient values.
+            public NetworkStream stream = null;
+            public const int bufferSize = 8192; //Buffer is this big due to purchase history strings.
+            public byte[] buffer = new byte[bufferSize];
+        }
+
+        ClientInfo client = new ClientInfo(); //Create new instance of client class.
+
+        public void Send(string data)
+        {
+            client.socket = new TcpClient(); //Set socket to null first before reconnecting.
+
+            client.socket.Connect(IPAddress.Parse("127.0.0.1"), 8000);
+            client.stream = client.socket.GetStream();
+
+            var bytes = Encoding.UTF8.GetBytes(data); //Get the bytes of the input data.
+            try
+            {
+                var stream = client.socket.GetStream(); //Get the socket stream.
+                stream.BeginWrite(bytes, 0, bytes.Length, EndSend, bytes); //Begin writing data until the end of the amount of bytes while passing to async callback method.
+            }
+
+            catch
+            {
+                 //If this fails make sure client is connected to the server.
+            }
+        }
+
+        public void EndSend(IAsyncResult result)
+        {
+            var bytes = (byte[])result.AsyncState; //Get the info to bytes and finish sending.
+        }
+
+        public void Read()
+        {
+            try
+            {
+                var stream = client.socket.GetStream(); //Get the socket stream.
+                client.stream.BeginRead(client.buffer, 0, client.buffer.Length, EndRead, client.buffer); //Send the data until length of buffer passing the process over to an async thread callback.
+            }
+
+            catch
+            {
+                 //If this fails make sure client is connected to the server.
+            }
+        }
+
+        public void EndRead(IAsyncResult result)
+        {
+            var stream = client.socket.GetStream(); //Get the stream as it is out of context now.
+            int endBytes = stream.EndRead(result); //Find out how much data is left to read.
+
+            var buffer = (byte[])result.AsyncState; //Create buffer based on the previous read method.
+            string data = Encoding.UTF8.GetString(buffer, 0, endBytes); //Get the string from the data.
+
+            departures = data.Split('{').ToList();
         }
     }
 }
