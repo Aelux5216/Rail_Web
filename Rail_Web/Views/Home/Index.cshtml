@@ -69,8 +69,8 @@
         <br />
         @{SelectList selDeparture = new SelectList(stationList);}
 
-        @Html.DropDownList("selDeparture",selDeparture);
+        @Html.DropDownList("selDeparture",selDeparture)
 
-        <input type="button" value="Search" onclick="location.href='@Url.Action("Home", "Result")'"/>
+        <input type="button" value="Search" onclick='location.href = "/Home/Result/" + document.getElementById("selDeparture").options[document.getElementById("selDeparture").selectedIndex].value;'/>
     </div>
 </div>
