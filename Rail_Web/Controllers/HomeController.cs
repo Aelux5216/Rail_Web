@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
 using System.Net;
+using Microsoft.AspNetCore.Http.Extensions;
 using Rail_Web.Models;
 
 namespace Rail_Web.Controllers
@@ -18,10 +19,14 @@ namespace Rail_Web.Controllers
             return View();
         }
 
-        public IActionResult Result(string id)
+        public IActionResult Result()
         {
-            Request.Form["selDeparture"]
-            string s = id;
+            //Get current id
+            string s = Request.GetDisplayUrl().Split('(')[1].Trim(')');
+
+            //Grab times from middleware
+
+
             return View();
         }
 
