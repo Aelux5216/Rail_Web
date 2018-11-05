@@ -16,15 +16,13 @@ namespace Rail_Web.Controllers
 {
     public class HomeController : Controller
     {
-        public List<string> departures;
-
         public IActionResult Index()
         {
             TempData["stations"] = getStations();
             return View();
         }
 
-        public async Task<IActionResult> Result()
+        public IActionResult ResultLoad()
         {
             //Get current id
             string s = Request.GetDisplayUrl().Split('(')[1].Trim(')');
@@ -34,10 +32,13 @@ namespace Rail_Web.Controllers
             //Grab times from middleware
             Send(s);
 
-            await Task.Run(() => Read());
+            Read();
 
-            TempData["depart"] = departures;
+            return RedirectToAction("Result");
+        }
 
+        public IActionResult Result()
+        {
             return View();
         }
 
@@ -123,8 +124,7 @@ namespace Rail_Web.Controllers
         {
             public TcpClient socket = null;    //Initalize default tcpclient values.
             public NetworkStream stream = null;
-            public const int bufferSize = 8192; //Buffer is this big due to purchase history strings.
-            public byte[] buffer = new byte[bufferSize];
+            public byte[] buffer = new byte[8192];
         }
 
         ClientInfo client = new ClientInfo(); //Create new instance of client class.
@@ -140,7 +140,7 @@ namespace Rail_Web.Controllers
             try
             {
                 var stream = client.socket.GetStream(); //Get the socket stream.
-                stream.BeginWrite(bytes, 0, bytes.Length, EndSend, bytes); //Begin writing data until the end of the amount of bytes while passing to async callback method.
+                stream.BeginWrite(bytes, 0, bytes.Length,EndSend, bytes); //Begin writing data until the end of the amount of bytes while passing to async callback method.
             }
 
             catch
@@ -149,10 +149,10 @@ namespace Rail_Web.Controllers
             }
         }
 
-        public void EndSend(IAsyncResult result)
-        {
+       public void EndSend(IAsyncResult result)
+       {
             var bytes = (byte[])result.AsyncState; //Get the info to bytes and finish sending.
-        }
+       }
 
         public void Read()
         {
@@ -164,7 +164,7 @@ namespace Rail_Web.Controllers
 
             catch
             {
-                 //If this fails make sure client is connected to the server.
+
             }
         }
 
@@ -176,7 +176,7 @@ namespace Rail_Web.Controllers
             var buffer = (byte[])result.AsyncState; //Create buffer based on the previous read method.
             string data = Encoding.UTF8.GetString(buffer, 0, endBytes); //Get the string from the data.
 
-            departures = data.Split('{').ToList();
+            resultModel.resultValue = data.Split('{').ToList();
         }
     }
 }
