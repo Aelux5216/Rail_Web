@@ -3,14 +3,14 @@
 }
 
 <h2 class="text-left">Departure Times</h2>
-<p id="departureBox" class="text-left">
+<div id="departureBox" class="text-left">
     @{
-
         List<string> resultList = resultModel.resultValue;
 
         foreach (string s in resultList)
         {
-            @s;
+            string b = s + Environment.NewLine;
+            @b
         }
     }
-</p>
+</div>
