@@ -22,7 +22,7 @@ namespace Rail_Web.Controllers
             return View();
         }
 
-        public IActionResult ResultLoad()
+        public IActionResult Result()
         {
             //Get current id
             string s = Request.GetDisplayUrl().Split('(')[1].Trim(')');
@@ -34,11 +34,6 @@ namespace Rail_Web.Controllers
 
             Read();
 
-            return RedirectToAction("Result");
-        }
-
-        public IActionResult Result()
-        {
             return View();
         }
 
@@ -124,7 +119,7 @@ namespace Rail_Web.Controllers
         {
             public TcpClient socket = null;    //Initalize default tcpclient values.
             public NetworkStream stream = null;
-            public byte[] buffer = new byte[8192];
+            public byte[] buffer = new byte[1024];
         }
 
         ClientInfo client = new ClientInfo(); //Create new instance of client class.
@@ -140,43 +135,32 @@ namespace Rail_Web.Controllers
             try
             {
                 var stream = client.socket.GetStream(); //Get the socket stream.
-                stream.BeginWrite(bytes, 0, bytes.Length,EndSend, bytes); //Begin writing data until the end of the amount of bytes while passing to async callback method.
+                stream.Write(bytes, 0, bytes.Length); //Begin writing data until the end of the amount of bytes while passing to async callback method.
             }
 
             catch
             {
-                 //If this fails make sure client is connected to the server.
+                //If this fails make sure client is connected to the server.
             }
         }
-
-       public void EndSend(IAsyncResult result)
-       {
-            var bytes = (byte[])result.AsyncState; //Get the info to bytes and finish sending.
-       }
 
         public void Read()
         {
             try
             {
                 var stream = client.socket.GetStream(); //Get the socket stream.
-                client.stream.BeginRead(client.buffer, 0, client.buffer.Length, EndRead, client.buffer); //Send the data until length of buffer passing the process over to an async thread callback.
+                int i = client.stream.Read(client.buffer, 0, 1024);
+                StringBuilder sb = new StringBuilder();
+
+                string resultString = Encoding.UTF8.GetString(client.buffer).Trim('\0');
+
+                resultModel.resultValue = resultString.Split('{').ToList();
             }
 
             catch
             {
 
             }
-        }
-
-        public void EndRead(IAsyncResult result)
-        {
-            var stream = client.socket.GetStream(); //Get the stream as it is out of context now.
-            int endBytes = stream.EndRead(result); //Find out how much data is left to read.
-
-            var buffer = (byte[])result.AsyncState; //Create buffer based on the previous read method.
-            string data = Encoding.UTF8.GetString(buffer, 0, endBytes); //Get the string from the data.
-
-            resultModel.resultValue = data.Split('{').ToList();
         }
     }
 }
