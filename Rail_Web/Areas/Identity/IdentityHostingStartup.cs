@@ -14,10 +14,10 @@ namespace Rail_Web.Areas.Identity
         {
             builder.ConfigureServices((context, services) => {
                 services.AddDbContext<Rail_WebContext>(options =>
-                    options.UseSqlServer(
+                    options.UseMySql(
                         context.Configuration.GetConnectionString("MySqlConnection")));
 
-                services.AddDefaultIdentity<IdentityUser>()
+                services.AddDefaultIdentity<ApplicationUser>()
                     .AddEntityFrameworkStores<Rail_WebContext>();
             });
         }

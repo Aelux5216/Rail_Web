@@ -67,10 +67,17 @@
     <div class="text-left">
         <h3>Buy tickets or check your journey below:</h3>
         <br />
+        <label class="glyphicon-bold">Departure</label>
         @{SelectList selDeparture = new SelectList(stationList);}
+        @Html.DropDownList("selDeparture", selDeparture)
+        <br />
+        <label class="glyphicon-bold">Arrival</label>
+        @{SelectList selArrival = new SelectList(stationList);}
+        @Html.DropDownList("selArrival", selArrival)
 
-        @Html.DropDownList("selDeparture",selDeparture)
-
-        <input type="button" value="Search" onclick='location.href = "/Home/Result/" + document.getElementById("selDeparture").options[document.getElementById("selDeparture").selectedIndex].value;'/>
+        <input type="button" value="Search" onclick='location.href = "/Home/Result/" +
+    document.getElementById("selDeparture").options[document.getElementById("selDeparture").selectedIndex].value +
+    "/" + 
+    document.getElementById("selArrival").options[document.getElementById("selArrival").selectedIndex].value;' />
     </div>
 </div>

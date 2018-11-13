@@ -11,6 +11,7 @@ using System.Net.Sockets;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Rail_Web.Controllers
 {
@@ -24,13 +25,17 @@ namespace Rail_Web.Controllers
 
         public IActionResult Result()
         {
-            //Get current id
-            string s = Request.GetDisplayUrl().Split('(')[1].Trim(')');
+            //Get depart id
+            string raw = Request.GetDisplayUrl();
+            string departID = Request.GetDisplayUrl().Split('(')[1].Trim(')');
+            string departIDF = departID.Split('/')[0].Trim(')');
+            string arrivalID = Request.GetDisplayUrl().Split('(')[2].Trim(')');
+            int serviceNo = 0;
 
-            s = "test{" + s;
+            string builder = "test{" + serviceNo + '{' + departIDF + '{' + arrivalID;
 
             //Grab times from middleware
-            Send(s);
+            Send(builder);
 
             Read();
 
@@ -153,6 +158,8 @@ namespace Rail_Web.Controllers
                 StringBuilder sb = new StringBuilder();
 
                 string resultString = Encoding.UTF8.GetString(client.buffer).Trim('\0');
+
+                object deserializedProduct = JsonConvert.DeserializeObject(resultString);
 
                 resultModel.resultValue = resultString.Split('{').ToList();
             }

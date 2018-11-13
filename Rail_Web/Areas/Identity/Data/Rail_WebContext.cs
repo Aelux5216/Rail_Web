@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Rail_Web.Models
 {
-    public class Rail_WebContext : IdentityDbContext<IdentityUser>
+    public class Rail_WebContext : IdentityDbContext<ApplicationUser>
     {
         public Rail_WebContext(DbContextOptions<Rail_WebContext> options)
             : base(options)
