@@ -1,7 +1,5 @@
-﻿using System;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +15,7 @@ namespace Rail_Web.Areas.Identity
             builder.ConfigureServices((context, services) => {
                 services.AddDbContext<Rail_WebContext>(options =>
                     options.UseSqlServer(
-                        context.Configuration.GetConnectionString("Rail_WebContextConnection")));
+                        context.Configuration.GetConnectionString("MySqlConnection")));
 
                 services.AddDefaultIdentity<IdentityUser>()
                     .AddEntityFrameworkStores<Rail_WebContext>();
