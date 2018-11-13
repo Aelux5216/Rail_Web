@@ -56,7 +56,7 @@ namespace Rail_Web
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller=Home}/{action=Index}/{id?}/{id2?}");
             });
         }
     }
