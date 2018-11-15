@@ -86,7 +86,7 @@ namespace Rail_Web.Controllers
             {
 
             }
-            
+
             //Setup reader for file
             StreamReader reader = null;
             List<string> stationList = new List<string>();
@@ -159,8 +159,8 @@ namespace Rail_Web.Controllers
 
                 string resultString = Encoding.UTF8.GetString(client.buffer).Trim('\0');
 
-                object deserializedProduct = JsonConvert.DeserializeObject(resultString);
-
+                Service deserializedProduct = deserializedProduct = JsonConvert.DeserializeObject<Service>(resultString);
+           
                 resultModel.resultValue = resultString.Split('{').ToList();
             }
 
