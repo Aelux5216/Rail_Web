@@ -15,11 +15,13 @@ namespace Rail_Web.Areas.Identity.Pages.Account
     [AllowAnonymous]
     public class LoginModel : PageModel
     {
-        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(UserManager<ApplicationUser> userManager, SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger)
         {
+            _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
         }
@@ -72,12 +74,30 @@ namespace Rail_Web.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.Username, Input.Password, Input.RememberMe, lockoutOnFailure: true);
+                Microsoft.AspNetCore.Identity.SignInResult result = null;
+
+                if (Input.Username.Contains('@'))
+                {
+                    try
+                    {
+                        ApplicationUser user = _userManager.FindByEmailAsync(Input.Username).Result;
+                        result = await _signInManager.PasswordSignInAsync(user.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                    }
+
+                    catch
+                    {
+                        result = Microsoft.AspNetCore.Identity.SignInResult.Failed;
+                    }
+                }
+
+                else
+                {
+                    result = await _signInManager.PasswordSignInAsync(Input.Username, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                }
+
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User logged in.");
+                    _logger.LogInformation(1, "User logged in.");
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)

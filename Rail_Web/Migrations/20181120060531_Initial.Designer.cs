@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Rail_Web.Models;
 
 namespace Rail_Web.Migrations
 {
     [DbContext(typeof(Rail_WebContext))]
-    partial class Rail_WebContextModelSnapshot : ModelSnapshot
+    [Migration("20181120060531_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -135,25 +137,13 @@ namespace Rail_Web.Migrations
 
                     b.Property<int>("AccessFailedCount");
 
-                    b.Property<string>("Address1");
-
-                    b.Property<string>("Address2");
-
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
-
-                    b.Property<string>("ConfirmPassword");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256);
 
                     b.Property<bool>("EmailConfirmed");
-
-                    b.Property<string>("FirstName");
-
-                    b.Property<string>("HouseName");
-
-                    b.Property<string>("LastName");
 
                     b.Property<bool>("LockoutEnabled");
 
@@ -167,13 +157,9 @@ namespace Rail_Web.Migrations
 
                     b.Property<string>("PasswordHash");
 
-                    b.Property<string>("Phone");
-
                     b.Property<string>("PhoneNumber");
 
                     b.Property<bool>("PhoneNumberConfirmed");
-
-                    b.Property<string>("Postcode");
 
                     b.Property<string>("SecurityStamp");
 

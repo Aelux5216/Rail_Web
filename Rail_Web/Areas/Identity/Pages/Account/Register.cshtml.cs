@@ -15,14 +15,14 @@ namespace Rail_Web.Areas.Identity.Pages.Account
     [AllowAnonymous]
     public class RegisterModel : PageModel
     {
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
 
         public RegisterModel(
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
+            UserManager<IdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
@@ -107,29 +107,13 @@ namespace Rail_Web.Areas.Identity.Pages.Account
             ReturnUrl = returnUrl;
         }
 
-        [HttpPost]
-        [AllowAnonymous]
-        public async Task<JsonResult> CheckEmailExists(string email)
-        {
-            var result = await _userManager.FindByEmailAsync(email);
-            return new JsonResult(null);        
-        }
-
-        [HttpPost]
-        [AllowAnonymous]
-        public async Task<JsonResult> CheckUsernameExists(string userName)
-        {
-            var result = await _userManager.FindByNameAsync(userName);
-            return new JsonResult(null);
-        }
-
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = Input.Username, Email = Input.Email, FirstName = Input.FirstName, LastName = Input.LastName
-                    ,PhoneNumber = Input.Phone,HouseName = Input.HouseName, Address1 = Input.Address1, Address2 = Input.Address2, Postcode = Input.Postcode };
+                    , PhoneNumber = Input.Phone, HouseName = Input.HouseName, Address1 = Input.Address1, Address2 = Input.Address2, Postcode = Input.Postcode };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
@@ -156,6 +140,24 @@ namespace Rail_Web.Areas.Identity.Pages.Account
 
             // If we got this far, something failed, redisplay form
             return Page();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<JsonResult> CheckUsernameExists(string userName)
+        {
+            var result = await _userManager.FindByNameAsync(userName);
+            JsonResult Jresult = new JsonResult(null);
+            return Jresult;
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<JsonResult> CheckEmailExists(string email)
+        {
+            var result = await _userManager.FindByEmailAsync(email);
+            JsonResult Jresult = new JsonResult(null);
+            return Jresult;
         }
     }
 }
