@@ -159,8 +159,17 @@ namespace Rail_Web.Controllers
 
                 string resultString = Encoding.UTF8.GetString(client.buffer).Trim('\0');
 
-                Service deserializedProduct = deserializedProduct = JsonConvert.DeserializeObject<Service>(resultString);
-           
+                Service deserializedService = deserializedService = JsonConvert.DeserializeObject<Service>(resultString);
+
+                List<CallingPoints> temp = new List<CallingPoints>();
+
+                foreach (string item in deserializedService.Calls_at_Temp)
+                {
+                    temp.Add(JsonConvert.DeserializeObject<CallingPoints>(item));
+                }
+
+                deserializedService.Calls_at = temp;
+
                 resultModel.resultValue = resultString.Split('{').ToList();
             }
 

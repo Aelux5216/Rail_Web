@@ -67,11 +67,11 @@
     <div class="text-left">
         <h3>Buy tickets or check your journey below:</h3>
         <br />
-        <label class="glyphicon-bold">Departure</label>
+        <b>Departure</b>
         @{SelectList selDeparture = new SelectList(stationList);}
         @Html.DropDownList("selDeparture", selDeparture)
         <br />
-        <label class="glyphicon-bold">Arrival</label>
+        <b>Arrival</b>
         @{SelectList selArrival = new SelectList(stationList);}
         @Html.DropDownList("selArrival", selArrival)
 

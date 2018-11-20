@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +20,9 @@ namespace Rail_Web.Areas.Identity
                         context.Configuration.GetConnectionString("MySqlConnection")));
 
                 services.AddDefaultIdentity<ApplicationUser>()
-                    .AddEntityFrameworkStores<Rail_WebContext>();
+                    .AddEntityFrameworkStores<Rail_WebContext>()
+                    .AddDefaultUI()
+                    .AddDefaultTokenProviders();
             });
         }
     }
