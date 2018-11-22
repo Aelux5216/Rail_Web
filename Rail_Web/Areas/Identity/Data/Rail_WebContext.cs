@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Rail_Web.Areas.Identity;
+using Rail_Web.Areas.Identity.Data;
 
 namespace Rail_Web.Models
 {
-    public class Rail_WebContext : IdentityDbContext<ApplicationUser>
+    public class Rail_WebContext : IdentityDbContext<Rail_WebUser>
     {
         public Rail_WebContext(DbContextOptions<Rail_WebContext> options)
             : base(options)

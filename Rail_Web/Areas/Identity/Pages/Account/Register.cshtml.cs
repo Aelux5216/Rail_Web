@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -9,20 +10,21 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Rail_Web.Areas.Identity.Data;
 
 namespace Rail_Web.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
     public class RegisterModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<Rail_WebUser> _signInManager;
+        private readonly UserManager<Rail_WebUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
 
         public RegisterModel(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
+            UserManager<Rail_WebUser> userManager,
+            SignInManager<Rail_WebUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
@@ -42,14 +44,14 @@ namespace Rail_Web.Areas.Identity.Pages.Account
             [Required(ErrorMessage = "{0} cannot be blank")]
             [Display(Name = "Username")]
             [StringLength(15, ErrorMessage = "{0} must be between {2} and {1} characters long.", MinimumLength = 3)]
-            [Remote("CheckUsernameExists", "Account", HttpMethod = "Post", ErrorMessage = "This username is not available. Please try again.")]
+            //[Remote("CheckUsernameExists", "Account", HttpMethod = "Post", ErrorMessage = "This username is not available. Please try again.")]
             public string Username { get; set; }
 
             [Required(ErrorMessage = "{0} cannot be blank")]
             [EmailAddress(ErrorMessage = "This {0} is not a valid e-mail address.")]
             [StringLength(255, ErrorMessage = "{0} must be under {1} characters long")]
             [Display(Name = "Email")]
-            [Remote("CheckEmailExists", "Account", HttpMethod = "Post", ErrorMessage = "This email address is already is use by another account. Please try again.")]
+            //[Remote("CheckEmailExists", "Account", HttpMethod = "Post", ErrorMessage = "This email address is already is use by another account. Please try again.")]
             public string Email { get; set; }
 
             [Required(ErrorMessage = "{0} cannot be blank")]
@@ -58,6 +60,7 @@ namespace Rail_Web.Areas.Identity.Pages.Account
             [Display(Name = "Password")]
             public string Password { get; set; }
 
+            [NotMapped]
             [Required(ErrorMessage = "{0} cannot be blank")]
             [Compare("Password", ErrorMessage = "The passwords do not match.")]
             [DataType(DataType.Password)]
@@ -112,8 +115,8 @@ namespace Rail_Web.Areas.Identity.Pages.Account
             returnUrl = returnUrl ?? Url.Content("~/");
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = Input.Username, Email = Input.Email, FirstName = Input.FirstName, LastName = Input.LastName
-                    , PhoneNumber = Input.Phone, HouseName = Input.HouseName, Address1 = Input.Address1, Address2 = Input.Address2, Postcode = Input.Postcode };
+                var user = new Rail_WebUser { UserName = Input.Username, Email = Input.Email, FirstName = Input.FirstName, LastName = Input.LastName,
+                    PhoneNumber = Input.Phone, HouseName = Input.HouseName, Address1 = Input.Address1, Address2 = Input.Address2, Postcode = Input.Postcode};
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
@@ -129,7 +132,7 @@ namespace Rail_Web.Areas.Identity.Pages.Account
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    //await _signInManager.SignInAsync(user, isPersistent: false);
                     return LocalRedirect(returnUrl);
                 }
                 foreach (var error in result.Errors)
@@ -140,24 +143,6 @@ namespace Rail_Web.Areas.Identity.Pages.Account
 
             // If we got this far, something failed, redisplay form
             return Page();
-        }
-
-        [HttpPost]
-        [AllowAnonymous]
-        public async Task<JsonResult> CheckUsernameExists(string userName)
-        {
-            var result = await _userManager.FindByNameAsync(userName);
-            JsonResult Jresult = new JsonResult(null);
-            return Jresult;
-        }
-
-        [HttpPost]
-        [AllowAnonymous]
-        public async Task<JsonResult> CheckEmailExists(string email)
-        {
-            var result = await _userManager.FindByEmailAsync(email);
-            JsonResult Jresult = new JsonResult(null);
-            return Jresult;
         }
     }
 }
