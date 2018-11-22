@@ -1,7 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@using Rail_Web.Areas.Identity
-@inject SignInManager<ApplicationUser> SignInManager
-@inject UserManager<ApplicationUser> UserManager
+@using Rail_Web.Areas.Identity.Data
+@inject SignInManager<Rail_WebUser> SignInManager
+@inject UserManager<Rail_WebUser> UserManager
 
 @if (SignInManager.IsSignedIn(User))
 {

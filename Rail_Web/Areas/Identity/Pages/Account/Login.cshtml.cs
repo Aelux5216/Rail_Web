@@ -9,17 +9,19 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Rail_Web.Areas.Identity.Data;
 
 namespace Rail_Web.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
     public class LoginModel : PageModel
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<Rail_WebUser> _userManager;
+        private readonly SignInManager<Rail_WebUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(UserManager<ApplicationUser> userManager, SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(UserManager<Rail_WebUser> userManager, 
+            SignInManager<Rail_WebUser> signInManager, ILogger<LoginModel> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -28,8 +30,6 @@ namespace Rail_Web.Areas.Identity.Pages.Account
 
         [BindProperty]
         public InputModel Input { get; set; }
-
-        public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
         public string ReturnUrl { get; set; }
 
@@ -63,8 +63,6 @@ namespace Rail_Web.Areas.Identity.Pages.Account
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
             ReturnUrl = returnUrl;
         }
 
@@ -80,7 +78,7 @@ namespace Rail_Web.Areas.Identity.Pages.Account
                 {
                     try
                     {
-                        ApplicationUser user = _userManager.FindByEmailAsync(Input.Username).Result;
+                        Rail_WebUser user = _userManager.FindByEmailAsync(Input.Username).Result;
                         result = await _signInManager.PasswordSignInAsync(user.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                     }
 
@@ -97,12 +95,8 @@ namespace Rail_Web.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation(1, "User logged in.");
+                    _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
-                }
-                if (result.RequiresTwoFactor)
-                {
-                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
                 }
                 if (result.IsLockedOut)
                 {

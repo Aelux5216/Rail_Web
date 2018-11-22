@@ -9,8 +9,8 @@ using Rail_Web.Models;
 namespace Rail_Web.Migrations
 {
     [DbContext(typeof(Rail_WebContext))]
-    [Migration("20181120060618_UpdateModel")]
-    partial class UpdateModel
+    [Migration("20181122200323_CreateIdentitySchema")]
+    partial class CreateIdentitySchema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -130,7 +130,7 @@ namespace Rail_Web.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("Rail_Web.Areas.Identity.ApplicationUser", b =>
+            modelBuilder.Entity("Rail_Web.Areas.Identity.Data.Rail_WebUser", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
@@ -143,8 +143,6 @@ namespace Rail_Web.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
-
-                    b.Property<string>("ConfirmPassword");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256);
@@ -168,8 +166,6 @@ namespace Rail_Web.Migrations
                         .HasMaxLength(256);
 
                     b.Property<string>("PasswordHash");
-
-                    b.Property<string>("Phone");
 
                     b.Property<string>("PhoneNumber");
 
@@ -206,7 +202,7 @@ namespace Rail_Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Rail_Web.Areas.Identity.ApplicationUser")
+                    b.HasOne("Rail_Web.Areas.Identity.Data.Rail_WebUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -214,7 +210,7 @@ namespace Rail_Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Rail_Web.Areas.Identity.ApplicationUser")
+                    b.HasOne("Rail_Web.Areas.Identity.Data.Rail_WebUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -227,7 +223,7 @@ namespace Rail_Web.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Rail_Web.Areas.Identity.ApplicationUser")
+                    b.HasOne("Rail_Web.Areas.Identity.Data.Rail_WebUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -235,7 +231,7 @@ namespace Rail_Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Rail_Web.Areas.Identity.ApplicationUser")
+                    b.HasOne("Rail_Web.Areas.Identity.Data.Rail_WebUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
