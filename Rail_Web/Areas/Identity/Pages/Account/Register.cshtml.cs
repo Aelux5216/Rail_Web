@@ -6,7 +6,7 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
+using Rail_Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
@@ -44,14 +44,12 @@ namespace Rail_Web.Areas.Identity.Pages.Account
             [Required(ErrorMessage = "{0} cannot be blank")]
             [Display(Name = "Username")]
             [StringLength(15, ErrorMessage = "{0} must be between {2} and {1} characters long.", MinimumLength = 3)]
-            //[Remote("CheckUsernameExists", "Account", HttpMethod = "Post", ErrorMessage = "This username is not available. Please try again.")]
             public string Username { get; set; }
 
             [Required(ErrorMessage = "{0} cannot be blank")]
             [EmailAddress(ErrorMessage = "This {0} is not a valid e-mail address.")]
             [StringLength(255, ErrorMessage = "{0} must be under {1} characters long")]
             [Display(Name = "Email")]
-            //[Remote("CheckEmailExists", "Account", HttpMethod = "Post", ErrorMessage = "This email address is already is use by another account. Please try again.")]
             public string Email { get; set; }
 
             [Required(ErrorMessage = "{0} cannot be blank")]
@@ -118,6 +116,7 @@ namespace Rail_Web.Areas.Identity.Pages.Account
                 var user = new Rail_WebUser { UserName = Input.Username, Email = Input.Email, FirstName = Input.FirstName, LastName = Input.LastName,
                     PhoneNumber = Input.Phone, HouseName = Input.HouseName, Address1 = Input.Address1, Address2 = Input.Address2, Postcode = Input.Postcode};
                 var result = await _userManager.CreateAsync(user, Input.Password);
+
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
@@ -129,8 +128,10 @@ namespace Rail_Web.Areas.Identity.Pages.Account
                         values: new { userId = user.Id, code = code },
                         protocol: Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your account",
+                        $"Please confirm your account by clicking <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'> here</a>.");
+
+                    ViewData["StatusMessage"] = "Please make sure to confirm your account with the email you just recieved.";
 
                     //await _signInManager.SignInAsync(user, isPersistent: false);
                     return LocalRedirect(returnUrl);
