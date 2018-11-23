@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
+using Rail_Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Rail_Web.Areas.Identity.Data;
@@ -40,13 +40,48 @@ namespace Rail_Web.Areas.Identity.Pages.Account.Manage
 
         public class InputModel
         {
-            [Required]
-            [EmailAddress]
+            [Required(ErrorMessage = "{0} cannot be blank")]
+            [EmailAddress(ErrorMessage = "This {0} is not a valid e-mail address.")]
+            [StringLength(255, ErrorMessage = "{0} must be under {1} characters long")]
+            [Display(Name = "Email")]
             public string Email { get; set; }
 
-            [Phone]
-            [Display(Name = "Phone number")]
+            [Required(ErrorMessage = "{0} cannot be blank")]
+            [StringLength(35, ErrorMessage = "{0} must be under {1} characters long")]
+            [Display(Name = "First Name")]
+            public string FirstName { get; set; }
+
+            [StringLength(35, ErrorMessage = "{0} must be under {1} characters long")]
+            [Display(Name = "Last Name")]
+            public string LastName { get; set; }
+
+            [Required(ErrorMessage = "{0} cannot be blank")]
+            [RegularExpression(@"^(?:(?:\(?(?:0(?:0|11)\)?[\s-]?\(?|\+)44\)?[\s-]?(?:\(?0\)?[\s-]?)?)|(?:\(?0))(?:(?:\d{5}\)?[\s-]?\d{4,5})|(?:\d{4}\)?[\s-]?(?:\d{5}|\d{3}[\s-]?\d{3}))|(?:\d{3}\)?[\s-]?\d{3}[\s-]?\d{3,4})|(?:\d{2}\)?[\s-]?\d{4}[\s-]?\d{4}))(?:[\s-]?(?:x|ext\.?|\#)\d{3,4})?$",
+                ErrorMessage = "{0} must be in UK format.")]
+            [DataType(DataType.PhoneNumber)]
+            [Display(Name = "Phone/Mobile Number")]
             public string PhoneNumber { get; set; }
+
+            [Required(ErrorMessage = "{0} cannot be blank")]
+            [StringLength(35, ErrorMessage = "{0} must be under {1} characters long")]
+            [Display(Name = "House Name/Number")]
+            public string HouseName { get; set; }
+
+            [Required(ErrorMessage = "{0} cannot be blank")]
+            [StringLength(35, ErrorMessage = "{0} must be under {1} characters long")]
+            [Display(Name = "Address Line 1")]
+            public string Address1 { get; set; }
+
+            [StringLength(35, ErrorMessage = "{0} must be under {1} characters long")]
+            [Display(Name = "Address Line 2")]
+            public string Address2 { get; set; }
+
+            [Required(ErrorMessage = "{0} cannot be blank")]
+            [RegularExpression(@"([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9]?[A-Za-z]))))\s?[0-9][A-Za-z]{2})",
+                ErrorMessage = "{0} Must be in UK format.")]
+            [DataType(DataType.PostalCode)]
+            [Display(Name = "Postcode")]
+            public string Postcode { get; set; }
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -58,15 +93,27 @@ namespace Rail_Web.Areas.Identity.Pages.Account.Manage
             }
 
             var userName = await _userManager.GetUserNameAsync(user);
-            var email = await _userManager.GetEmailAsync(user);
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+            var email = user.Email;
+            var phoneNumber = user.PhoneNumber;
+            var firstName = user.FirstName;
+            var lastName = user.LastName;
+            var houseName = user.HouseName;
+            var address1 = user.Address1;
+            var address2 = user.Address2;
+            var postcode = user.Postcode;
 
             Username = userName;
 
             Input = new InputModel
             {
                 Email = email,
-                PhoneNumber = phoneNumber
+                PhoneNumber = phoneNumber,
+                FirstName = firstName,
+                LastName = lastName,
+                HouseName = houseName,
+                Address1 = address1,
+                Address2 = address2,
+                Postcode = postcode
             };
 
             IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
@@ -87,30 +134,31 @@ namespace Rail_Web.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            var email = await _userManager.GetEmailAsync(user);
-            if (Input.Email != email)
+            try
             {
-                var setEmailResult = await _userManager.SetEmailAsync(user, Input.Email);
-                if (!setEmailResult.Succeeded)
-                {
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    throw new InvalidOperationException($"Unexpected error occurred setting email for user with ID '{userId}'.");
-                }
+                user.UserName = await _userManager.GetUserNameAsync(user);
+                user.Email = Input.Email;
+                user.FirstName = Input.FirstName;
+                user.LastName = Input.LastName;
+                user.PhoneNumber = Input.PhoneNumber;
+                user.HouseName = Input.HouseName;
+                user.Address1 = Input.Address1;
+                user.Address2 = Input.Address2;
+                user.Postcode = Input.Postcode;
+
+                await _userManager.UpdateAsync(user);
+
+                await _signInManager.RefreshSignInAsync(user);
+
+                StatusMessage = "Your profile has been updated";
             }
 
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            if (Input.PhoneNumber != phoneNumber)
+            catch
             {
-                var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-                if (!setPhoneResult.Succeeded)
-                {
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    throw new InvalidOperationException($"Unexpected error occurred setting phone number for user with ID '{userId}'.");
-                }
+                throw new InvalidOperationException($"Unexpected error occurred while updating details.");
             }
+            
 
-            await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your profile has been updated";
             return RedirectToPage();
         }
 
@@ -126,7 +174,6 @@ namespace Rail_Web.Areas.Identity.Pages.Account.Manage
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
-
 
             var userId = await _userManager.GetUserIdAsync(user);
             var email = await _userManager.GetEmailAsync(user);
