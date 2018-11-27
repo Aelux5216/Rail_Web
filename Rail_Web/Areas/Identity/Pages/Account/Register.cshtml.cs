@@ -115,30 +115,40 @@ namespace Rail_Web.Areas.Identity.Pages.Account
             {
                 var user = new Rail_WebUser { UserName = Input.Username, Email = Input.Email, FirstName = Input.FirstName, LastName = Input.LastName,
                     PhoneNumber = Input.Phone, HouseName = Input.HouseName, Address1 = Input.Address1, Address2 = Input.Address2, Postcode = Input.Postcode};
-                var result = await _userManager.CreateAsync(user, Input.Password);
 
-                if (result.Succeeded)
+                try
                 {
-                    _logger.LogInformation("User created a new account with password.");
+                    var result = await _userManager.CreateAsync(user, Input.Password);
 
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { userId = user.Id, code = code },
-                        protocol: Request.Scheme);
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("User created a new account with password.");
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your account",
-                        $"Please confirm your account by clicking <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'> here</a>.");
+                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        var callbackUrl = Url.Page(
+                            "/Account/ConfirmEmail",
+                            pageHandler: null,
+                            values: new { userId = user.Id, code = code },
+                            protocol: Request.Scheme);
 
-                    ViewData["StatusMessage"] = "Please make sure to confirm your account with the email you just recieved.";
+                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your account",
+                            $"Please confirm your account by clicking <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'> here</a>.");
 
-                    //await _signInManager.SignInAsync(user, isPersistent: false);
-                    return LocalRedirect(returnUrl);
+                        ViewData["StatusMessage"] = "Please make sure to confirm your account with the email you just recieved.";
+
+                        //await _signInManager.SignInAsync(user, isPersistent: false); //Removed unless we need the user to be auto logged in.
+                        return LocalRedirect(returnUrl);
+                    }
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
                 }
-                foreach (var error in result.Errors)
+
+                catch
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    ModelState.AddModelError(string.Empty, "Login Failed, we maybe experiencing issues at the moment.");
+                    return Page();
                 }
             }
 

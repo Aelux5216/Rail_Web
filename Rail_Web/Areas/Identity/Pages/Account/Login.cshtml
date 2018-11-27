@@ -6,6 +6,17 @@
 }
 
 <h2>@ViewData["Title"]</h2>
+
+@{ try
+    {
+        @Html.Partial("_StatusMessage", ViewData["StatusMessage"])
+    }
+    catch
+    {
+
+    }
+}
+
 <div class="row">
     <div class="col-md-4">
         <section>

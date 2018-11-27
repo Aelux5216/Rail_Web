@@ -90,7 +90,15 @@ namespace Rail_Web.Areas.Identity.Pages.Account
 
                 else
                 {
-                    result = await _signInManager.PasswordSignInAsync(Input.Username, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                    try
+                    {
+                        result = await _signInManager.PasswordSignInAsync(Input.Username, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                    }
+                    catch
+                    {
+                        ModelState.AddModelError(string.Empty, "Login Failed, we maybe experiencing issues at the moment.");
+                        return Page();
+                    }
                 }
 
                 if (result.Succeeded)
