@@ -44,8 +44,8 @@ namespace Rail_Web.Areas.Identity.Pages.Account.Manage
                 personalData.Add(p.Name, p.GetValue(user)?.ToString() ?? "null");
             }
 
-            Response.Headers.Add("Content-Disposition", "attachment; filename=PersonalData.json");
-            return new FileContentResult(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(personalData)), "text/json");
+            Response.Headers.Add("Content-Disposition", "attachment; filename=PersonalData.txt");
+            return new FileContentResult(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(personalData)), "text/plain");
         }
     }
 }
