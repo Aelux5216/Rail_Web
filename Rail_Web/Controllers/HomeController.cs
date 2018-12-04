@@ -133,7 +133,7 @@ namespace Rail_Web.Controllers
         {
             client.socket = new TcpClient(); //Set socket to null first before reconnecting.
 
-            client.socket.Connect(IPAddress.Parse("127.0.0.1"), 8000);
+            client.socket.Connect(IPAddress.Parse("127.0.0.1"), 8001);
             client.stream = client.socket.GetStream();
 
             var bytes = Encoding.UTF8.GetBytes(data); //Get the bytes of the input data.
