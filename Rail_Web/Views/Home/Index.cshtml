@@ -60,22 +60,20 @@
 <div class="body-content">
     <div class="text-center">
         <h2>Welcome to 'INSERT NAME HERE'</h2>
-        <br />
-        <br />
-        <p class="text-left">Hello and welcome to 'INSERT NAME HERE'. Blah blah blah</p>
+        <p>Hello and welcome to 'INSERT NAME HERE'. Blah blah blah</p>
     </div>
-    <div class="text-left">
+    <div class="text-center">
         <h3>Buy tickets or check your journey below:</h3>
-        <br />
-        <b>Departure</b>
+        <b class="text-left">Leaving from:</b>
         @{SelectList selDeparture = new SelectList(stationList);}
         @Html.DropDownList("selDeparture", selDeparture)
         <br />
-        <b>Arrival</b>
+        <br />
+        <b class="text-left" style="margin-left:2em;">Going to:</b>
         @{SelectList selArrival = new SelectList(stationList);}
         @Html.DropDownList("selArrival", selArrival)
-
-        <input type="button" value="Search" onclick='location.href = "/Home/Result/" +
+        <br/>
+        <input style="margin-top:1em;" type="button" value="Search" onclick='location.href = "/Home/Result/" +
     document.getElementById("selDeparture").options[document.getElementById("selDeparture").selectedIndex].value +
     "/" + 
     document.getElementById("selArrival").options[document.getElementById("selArrival").selectedIndex].value;' />
