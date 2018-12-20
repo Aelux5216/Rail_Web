@@ -30,9 +30,12 @@ namespace Rail_Web.Controllers
             string departID = Request.GetDisplayUrl().Split('(')[1].Trim(')');
             string departIDF = departID.Split('/')[0].Trim(')');
             string arrivalID = Request.GetDisplayUrl().Split('(')[2].Trim(')');
+
             int serviceNo = 0;
 
-            string builder = "test{" + serviceNo + '{' + departIDF + '{' + arrivalID;
+            string builder = "GetOne{" + serviceNo + '{' + departIDF + '{' + arrivalID; //Make sure this still works
+
+            //string builder = "GetAll{" + departIDF + "{" + arrivalID;
 
             //Grab times from middleware
             Send(builder);
@@ -133,19 +136,36 @@ namespace Rail_Web.Controllers
         {
             client.socket = new TcpClient(); //Set socket to null first before reconnecting.
 
-            client.socket.Connect(IPAddress.Parse("127.0.0.1"), 8001);
-            client.stream = client.socket.GetStream();
-
-            var bytes = Encoding.UTF8.GetBytes(data); //Get the bytes of the input data.
             try
             {
-                var stream = client.socket.GetStream(); //Get the socket stream.
-                stream.Write(bytes, 0, bytes.Length); //Begin writing data until the end of the amount of bytes while passing to async callback method.
+                client.socket.Connect(IPAddress.Parse("127.0.0.1"), 8001); //Handle no python connection.
             }
 
             catch
             {
-                //If this fails make sure client is connected to the server.
+
+            }
+
+            if (client.socket.Connected == true)
+            {
+                client.stream = client.socket.GetStream();
+
+                var bytes = Encoding.UTF8.GetBytes(data); //Get the bytes of the input data.
+                try
+                {
+                    var stream = client.socket.GetStream(); //Get the socket stream.
+                    stream.Write(bytes, 0, bytes.Length); //Begin writing data until the end of the amount of bytes while passing to async callback method.
+                }
+
+                catch
+                {
+                    //If this fails make sure client is connected to the server.
+                }
+            }
+
+            else
+            {
+                resultModel.error = "Python client not available.";
             }
         }
 
@@ -159,18 +179,38 @@ namespace Rail_Web.Controllers
 
                 string resultString = Encoding.UTF8.GetString(client.buffer).Trim('\0');
 
-                Service deserializedService = deserializedService = JsonConvert.DeserializeObject<Service>(resultString);
-
-                List<CallingPoints> temp = new List<CallingPoints>();
-
-                foreach (string item in deserializedService.Calls_at_Temp)
+                if (resultString == "NoServices" || resultString == "NoConn")
                 {
-                    temp.Add(JsonConvert.DeserializeObject<CallingPoints>(item));
+                    resultModel.error = resultString;
                 }
 
-                deserializedService.Calls_at = temp;
+                else
+                {
+                    //Try to deserialize if fails then most likely error message read this and display on screen as appropriate.
+                    JsonConvert.DeserializeObject<string[]>(resultString);
 
-                resultModel.resultValue = resultString.Split('{').ToList();
+                    Service[] deserializedServices = JsonConvert.DeserializeObject<Service[]>(resultString); //List of strings need decoding into services then extract calling points
+
+                    List<Service> serviceList = new List<Service>();
+
+                    foreach (Service s in deserializedServices)
+                    {
+                        List<CallingPoints> temp = new List<CallingPoints>();
+
+                        foreach (string item in s.Calls_at_Temp)
+                        {
+                            temp.Add(JsonConvert.DeserializeObject<CallingPoints>(item));
+                        }
+
+                        s.Calls_at = temp;
+
+                        serviceList.Add(s);
+                    }
+
+                    //Do something with list of classes ?
+
+                    //resultModel.resultValue = resultString.Split('{').ToList();
+                }
             }
 
             catch

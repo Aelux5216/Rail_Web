@@ -8,5 +8,6 @@ namespace Rail_Web.Models
     public class resultModel
     {
         public static List<string> resultValue {get;set;}
+        public static string error { get; set; }
     }
 }
