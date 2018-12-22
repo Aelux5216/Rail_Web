@@ -33,9 +33,9 @@ namespace Rail_Web.Controllers
 
             int serviceNo = 0;
 
-            string builder = "GetOne{" + serviceNo + '{' + departIDF + '{' + arrivalID; //Make sure this still works
+            //string builder = "GetOne{" + serviceNo + '{' + departIDF + '{' + arrivalID; //Make sure this still works
 
-            //string builder = "GetAll{" + departIDF + "{" + arrivalID;
+            string builder = "GetAll{" + departIDF + "{" + arrivalID;
 
             //Grab times from middleware
             Send(builder);
@@ -127,7 +127,7 @@ namespace Rail_Web.Controllers
         {
             public TcpClient socket = null;    //Initalize default tcpclient values.
             public NetworkStream stream = null;
-            public byte[] buffer = new byte[1024];
+            public byte[] buffer = new byte[4096];
         }
 
         ClientInfo client = new ClientInfo(); //Create new instance of client class.
@@ -171,10 +171,10 @@ namespace Rail_Web.Controllers
 
         public void Read()
         {
-            try
-            {
+            /*try
+            {*/
                 var stream = client.socket.GetStream(); //Get the socket stream.
-                int i = client.stream.Read(client.buffer, 0, 1024);
+                int i = client.stream.Read(client.buffer, 0, 4096);
                 StringBuilder sb = new StringBuilder();
 
                 string resultString = Encoding.UTF8.GetString(client.buffer).Trim('\0');
@@ -186,37 +186,43 @@ namespace Rail_Web.Controllers
 
                 else
                 {
-                    //Try to deserialize if fails then most likely error message read this and display on screen as appropriate.
-                    JsonConvert.DeserializeObject<string[]>(resultString);
 
-                    Service[] deserializedServices = JsonConvert.DeserializeObject<Service[]>(resultString); //List of strings need decoding into services then extract calling points
+                List<Service> serviceList = new List<Service>();
+                
+                //Try to deserialize if fails then most likely error message read this and display on screen as appropriate.
+                List<string> resultstring1;
 
-                    List<Service> serviceList = new List<Service>();
+                resultstring1 = JsonConvert.DeserializeObject<List<string>>(resultString);
 
-                    foreach (Service s in deserializedServices)
+                foreach (string s2 in resultstring1)
+                {
+                    Service temp = JsonConvert.DeserializeObject<Service>(s2);
+                    serviceList.Add(temp);
+                }
+
+                List<Service> serviceList1 = serviceList;
+
+                foreach (Service s in serviceList1)
+                {
+                    List<CallingPoints> temp = new List<CallingPoints>();
+
+                    foreach (string item in s.Calls_at_Temp)
                     {
-                        List<CallingPoints> temp = new List<CallingPoints>();
-
-                        foreach (string item in s.Calls_at_Temp)
-                        {
-                            temp.Add(JsonConvert.DeserializeObject<CallingPoints>(item));
-                        }
-
-                        s.Calls_at = temp;
-
-                        serviceList.Add(s);
+                        temp.Add(JsonConvert.DeserializeObject<CallingPoints>(item));
                     }
 
-                    //Do something with list of classes ?
-
-                    //resultModel.resultValue = resultString.Split('{').ToList();
+                    s.Calls_at = temp;
                 }
-            }
 
-            catch
-            {
+                resultModel.resultValue = serviceList1;
 
             }
         }
+
+            /*catch
+            {
+
+            }*/
+        }
     }
-}
+

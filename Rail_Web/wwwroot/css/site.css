@@ -28,6 +28,20 @@ body {
     margin: 15px;
 }
 
+#nav2 {
+    position: static;
+    float: none;
+    width: auto;
+    margin-top: 0;
+    background-color: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+#navbar-nav2 > navbar-nav{
+    
+}
+
 /* Hide/rearrange for smaller screens */
 @media screen and (max-width: 768px) {
     /* Hide captions */
