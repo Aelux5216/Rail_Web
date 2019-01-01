@@ -79,20 +79,24 @@
                                     </div>
                                     <div id="@string.Format("collapse-info{0}", i)" class="panel-collapse collapse">
                                         <div class="panel-body">
-                                            @foreach (CallingPoints c in item.Calls_at)
-                                            {
-                                                if (c.status != "On time")
+                                            <div class="container">
+                                                @foreach (CallingPoints c in item.Calls_at)
                                                 {
-                                                    <p class="col-sm-3">@c.name</p> <p class="col-sm-3">Arriving at: @c.time</p> <p class="col-sm-3">Status <span class="glyphicon glyphicon-alert" style="color:red;"></span> : @c.status</p>
-                                                    <br />
-                                                }
+                                                    if (c.status != "On time")
+                                                    {
+                                                        <div class="row">
+                                                            <p class="col-xs-4">@c.name</p> <p class="col-xs-4">Arriving at: @c.time</p> <p class="col-xs-4">Status <span class="glyphicon glyphicon-alert" style="color:red;"></span> : @c.status</p>
+                                                        </div>
+                                                    }
 
-                                                else
-                                                {
-                                                    <p class="col-sm-3">@c.name</p> <p class="col-sm-3">Arriving at: @c.time</p> <p class="col-sm-3">Status <span class="glyphicon glyphicon-alert"></span> : @c.status</p>
-                                                    <br />
+                                                    else
+                                                    {
+                                                        <div class="row">
+                                                            <p class="col-xs-4">@c.name</p> <p class="col-xs-4">Arriving at: @c.time</p> <p class="col-xs-4">Status <span class="glyphicon glyphicon-alert"></span> : @c.status</p>
+                                                        </div>
+                                                    }
                                                 }
-                                            }                                           
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
