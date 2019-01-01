@@ -50,9 +50,14 @@
                         <div class="panel-body">
                             <p><b>This service is provided by @item.service_operator.</b></p>
                             @{
-                                if (item.disrupt_reason != null)
+                                if (item.status != "On time")
                                 {
-                                    <p>Status <span class="glyphicon glyphicon-alert" style="color:red;"></span> : @item.status, @item.disrupt_reason</p>
+                                    <p>Status <span class="glyphicon glyphicon-alert" style="color:red;"></span> : Delayed, now scheduled to depart at @item.status</p>
+                                }
+
+                                else if (item.disrupt_reason != null)
+                                {
+                                    <p>Status <span class="glyphicon glyphicon-alert" style="color:red;"></span> : Service disrupted due to @item.disrupt_reason</p>
                                 }
 
                                 else
@@ -85,14 +90,14 @@
                                                     if (c.status != "On time")
                                                     {
                                                         <div class="row">
-                                                            <p class="col-xs-4">@c.name</p> <p class="col-xs-4">Arriving at: @c.time</p> <p class="col-xs-4">Status <span class="glyphicon glyphicon-alert" style="color:red;"></span> : @c.status</p>
+                                                            <p class="col-xs-3">@c.name</p> <p class="col-xs-3">Departing at: @c.time</p> <p class="col-xs-3">Status <span class="glyphicon glyphicon-alert" style="color:red;"></span> : Delayed, now scheduled to depart at @c.status</p><span class="col-xs-3"></span>
                                                         </div>
                                                     }
 
                                                     else
                                                     {
                                                         <div class="row">
-                                                            <p class="col-xs-4">@c.name</p> <p class="col-xs-4">Arriving at: @c.time</p> <p class="col-xs-4">Status <span class="glyphicon glyphicon-alert"></span> : @c.status</p>
+                                                            <p class="col-xs-3">@c.name</p> <p class="col-xs-3">Departing at: @c.time</p> <p class="col-xs-3">Status <span class="glyphicon glyphicon-alert"></span> : @c.status</p><span class="col-xs-3"></span>
                                                         </div>
                                                     }
                                                 }
@@ -101,7 +106,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <!--Calling points-->
                             <!--Buy button linked to this record somehow, re-direct to buy page-->
                         </div>
                     </div>
