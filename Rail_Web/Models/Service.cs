@@ -17,7 +17,7 @@ namespace Rail_Web.Models
         [JsonProperty("dep_code")]
         public string dep_code { get; set; }
         [JsonProperty("dep_time")]
-        public string dep_time { get; set; }
+        public DateTime dep_time { get; set; }
         [JsonProperty("dep_platform")]
         public string dep_platform { get; set; }
         [JsonProperty("arr_name")]
@@ -25,7 +25,7 @@ namespace Rail_Web.Models
         [JsonProperty("arr_code")]
         public string arr_code { get; set; }
         [JsonProperty("arr_time")]
-        public string arr_time { get; set; }
+        public DateTime arr_time { get; set; }
         [JsonProperty("arr_platform")]
         public string arr_platform { get; set;}
         [JsonProperty("status")]
@@ -34,7 +34,8 @@ namespace Rail_Web.Models
         public string disrupt_reason { get; set; }
         [JsonProperty("calls_at")]
         public string[] Calls_at_Temp { get; set; }
-        
         public List<CallingPoints> Calls_at { get; set; }
+        [JsonProperty("stops")]
+        public int stops { get; set; }
     }
 }

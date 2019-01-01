@@ -7,7 +7,9 @@ namespace Rail_Web.Models
 {
     public class resultModel
     {
-        public static List<Service> resultValue {get;set;}
-        public static string error { get; set; }
+        public List<Service> resultValue {get;set;}
+        public string error { get; set; }
+
+        public static resultModel modelInstance { get; set; }
     }
 }
