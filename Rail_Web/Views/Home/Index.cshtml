@@ -73,9 +73,15 @@
         @{SelectList selArrival = new SelectList(stationList);}
         @Html.DropDownList("selArrival", selArrival, new { @class = "chosen" }) 
         <br />
-        <input style="margin-top:1em;" type="button" value="Search" onclick='location.href = "/Home/Result/" +
+        <div class="container">
+            <div class="row">
+                <p class="col-xs-12">
+                    <input style="margin-top:1em;" type="button" value="Search" onclick='location.href = "/Home/Result/" +
     document.getElementById("selDeparture").options[document.getElementById("selDeparture").selectedIndex].value +
     "/" +
     document.getElementById("selArrival").options[document.getElementById("selArrival").selectedIndex].value;' />
+                </p>
+            </div>
+        </div>
     </div>
 </div>
