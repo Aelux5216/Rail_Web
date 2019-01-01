@@ -31,10 +31,6 @@ namespace Rail_Web.Controllers
             string departIDF = departID.Split('/')[0].Trim(')');
             string arrivalID = Request.GetDisplayUrl().Split('(')[2].Trim(')');
 
-            int serviceNo = 0;
-
-            //string builder = "GetOne{" + serviceNo + '{' + departIDF + '{' + arrivalID; //Make sure this still works
-
             string builder = "GetAll{" + departIDF + "{" + arrivalID;
 
             //Grab times from middleware
@@ -42,7 +38,7 @@ namespace Rail_Web.Controllers
 
             Read();
 
-            return View();
+            return View(resultModel.modelInstance);
         }
 
         public IActionResult About()
@@ -127,7 +123,7 @@ namespace Rail_Web.Controllers
         {
             public TcpClient socket = null;    //Initalize default tcpclient values.
             public NetworkStream stream = null;
-            public byte[] buffer = new byte[4096];
+            public byte[] buffer = new byte[8192];
         }
 
         ClientInfo client = new ClientInfo(); //Create new instance of client class.
@@ -148,13 +144,12 @@ namespace Rail_Web.Controllers
 
             if (client.socket.Connected == true)
             {
-                client.stream = client.socket.GetStream();
-
                 var bytes = Encoding.UTF8.GetBytes(data); //Get the bytes of the input data.
+
                 try
                 {
-                    var stream = client.socket.GetStream(); //Get the socket stream.
-                    stream.Write(bytes, 0, bytes.Length); //Begin writing data until the end of the amount of bytes while passing to async callback method.
+                    client.stream = client.socket.GetStream();
+                    client.stream.Write(bytes, 0, bytes.Length); //Begin writing data until the end of the amount of bytes while passing to async callback method.
                 }
 
                 catch
@@ -165,34 +160,34 @@ namespace Rail_Web.Controllers
 
             else
             {
-                resultModel.error = "Python client not available.";
+                resultModel r = new resultModel { error = "Python client not available." };
+                resultModel.modelInstance = r;
             }
         }
 
         public void Read()
         {
-            /*try
-            {*/
-                var stream = client.socket.GetStream(); //Get the socket stream.
-                int i = client.stream.Read(client.buffer, 0, 4096);
-                StringBuilder sb = new StringBuilder();
+            client.stream = client.socket.GetStream(); //Get the socket stream.
+            client.stream.Read(client.buffer, 0, client.buffer.Length);
 
-                string resultString = Encoding.UTF8.GetString(client.buffer).Trim('\0');
+            string dataRecieved = Encoding.UTF8.GetString(client.buffer).Trim('\0');
 
-                if (resultString == "NoServices" || resultString == "NoConn")
-                {
-                    resultModel.error = resultString;
-                }
+            resultModel r = new resultModel();
 
-                else
-                {
+            if (dataRecieved == "NoServices" || dataRecieved == "NoConn")
+            {
+                r.error = dataRecieved;
+                resultModel.modelInstance = r;
+            }
 
+            else
+            {
                 List<Service> serviceList = new List<Service>();
-                
+
                 //Try to deserialize if fails then most likely error message read this and display on screen as appropriate.
                 List<string> resultstring1;
 
-                resultstring1 = JsonConvert.DeserializeObject<List<string>>(resultString);
+                resultstring1 = JsonConvert.DeserializeObject<List<string>>(dataRecieved);
 
                 foreach (string s2 in resultstring1)
                 {
@@ -214,15 +209,10 @@ namespace Rail_Web.Controllers
                     s.Calls_at = temp;
                 }
 
-                resultModel.resultValue = serviceList1;
-
+                r.resultValue = serviceList1;
+                resultModel.modelInstance = r;
             }
         }
-
-            /*catch
-            {
-
-            }*/
-        }
     }
+}
 

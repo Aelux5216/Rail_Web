@@ -9,12 +9,12 @@ namespace Rail_Web.Models
     public class CallingPoints
     {
         [JsonProperty("name")]
-        string name { get; set; }
+        public string name { get; set; }
         [JsonProperty("code")]
-        string code { get; set; }
+        public string code { get; set; }
         [JsonProperty("time")]
-        string time { get; set; }
+        public string time { get; set; }
         [JsonProperty("status")]
-        string status { get; set; }
+        public string status { get; set; }
     }
 }

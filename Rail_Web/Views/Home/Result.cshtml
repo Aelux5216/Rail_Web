@@ -1,23 +1,33 @@
 ﻿@{
     ViewData["Title"] = "Results";
 }
-
-
+@model resultModel
 @{
-    List<Service> resultList = resultModel.resultValue;
-    string error = resultModel.error;
-}
+    List<Service> resultList = null;
+    string error = Model.error;
+
+    try
+    {
+        resultList = Model.resultValue;
+    }
+    catch
+    {
+        
+    }
+ }
 
 <h2 class="text-left">Departure Times</h2>
+
+<p> Click a heading to view more information. </p>
 
 <div class="panel-group" id="displayGrouper">
     @{
         if (error != null && error != "")
         {
-            @error
+            @error //Show in popup message.
         }
 
-        else
+        else if (resultList != null)
         {
             int i = 0;
 
@@ -25,21 +35,79 @@
             {
                 i++;
 
-                <div class="panel panel-default">
+                double minutes = item.arr_time.Subtract(item.dep_time).Minutes;
+                int hours = Convert.ToInt32(item.arr_time.Subtract(item.dep_time).TotalHours);
+
+                <div class="panel panel-primary">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#displayGrouper" href="@string.Format("#collapse{0}",i)">
-                                @item.dep_time
+                            <a data-toggle="collapse" data-parent="#displayGrouper" href="@string.Format("#collapse{0}", i)">
+                                @item.dep_time.ToShortTimeString() @item.dep_name <span class="glyphicon glyphicon-arrow-right"></span> @item.arr_name @item.arr_time.ToShortTimeString()
                             </a>
                         </h4>
                     </div>
-                    <div id="@string.Format("collapse{0}",i)" class="panel-collapse collapse">
+                    <div id="@string.Format("collapse{0}", i)" class="panel-collapse collapse">
                         <div class="panel-body">
-                            Other specific service details here.
+                            <p><b>This service is provided by @item.service_operator.</b></p>
+                            @{
+                                if (item.disrupt_reason != null)
+                                {
+                                    <p>Status <span class="glyphicon glyphicon-alert" style="color:red;"></span> : @item.status, @item.disrupt_reason</p>
+                                }
+
+                                else
+                                {
+                                    <p>Status <span class="glyphicon glyphicon-alert"></span> : @item.status</p>
+                                }
+                            }
+                            <p>This train will be departing from platform: @item.dep_platform</p>
+                            @if (hours < 1)
+                            {
+                                <p>@string.Format("Journey will take approximately: {0} minutes", minutes)</p>
+                            }
+                            else
+                            {
+                                <p>@string.Format("Journey will take approximately: {0} hours and {1} minutes", hours, minutes)</p>
+                            }
+                            <p>This train will be arriving at platform: @item.arr_platform</p>
+                            <div class="panel-group" id="displayGrouper2">
+                                <div class="panel panel-info">
+                                    <div class="panel-heading">
+                                        <p class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#displayGrouper2" href="@string.Format("#collapse-info{0}",i)">This train calls at: @item.stops station/s</a>
+                                        </p>
+                                    </div>
+                                    <div id="@string.Format("collapse-info{0}", i)" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            @foreach (CallingPoints c in item.Calls_at)
+                                            {
+                                                if (c.status != "On time")
+                                                {
+                                                    <p class="col-sm-3">@c.name</p> <p class="col-sm-3">Arriving at: @c.time</p> <p class="col-sm-3">Status <span class="glyphicon glyphicon-alert" style="color:red;"></span> : @c.status</p>
+                                                    <br />
+                                                }
+
+                                                else
+                                                {
+                                                    <p class="col-sm-3">@c.name</p> <p class="col-sm-3">Arriving at: @c.time</p> <p class="col-sm-3">Status <span class="glyphicon glyphicon-alert"></span> : @c.status</p>
+                                                    <br />
+                                                }
+                                            }                                           
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--Calling points-->
+                            <!--Buy button linked to this record somehow, re-direct to buy page-->
                         </div>
                     </div>
                 </div>
             }
+        }
+
+        else
+        {
+            //Show trouble connecting error as this means resultValue is null which is not expected
         }
     }
 </div>
