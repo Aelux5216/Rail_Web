@@ -16,19 +16,33 @@
     }
  }
 
-<h2 class="text-left">Departure Times</h2>
-
-<p> Click a heading to view more information. </p>
+<h3 class="text-left">Departure Times</h3>
 
 <div class="panel-group" id="displayGrouper">
     @{
-        if (error != null && error != "")
+        if (error == "NoServices")
         {
-            @error //Show in popup message.
+            <div class="container">
+                <div class="row">
+                    <img class="col-xs-8" src="~/images/NoServices.png" />
+                    <span class="col-xs-4"></span>
+                </div>
+                <h4 style="color:red;">There is currently no services available for the selected journey.</h4>
+            </div>
+        }
+        else if (error == "NoConn")
+        {
+            //Darwin down
+        }
+        else if (error == "TechIssues")
+        {
+            //Middleware issues
         }
 
-        else if (resultList != null)
+        if (resultList != null)
         {
+            <p> Click a heading to view more information. </p>
+
             int i = 0;
 
             foreach (Service item in resultList)
@@ -40,11 +54,11 @@
 
                 <div class="panel panel-primary">
                     <div class="panel-heading">
-                        <h4 class="panel-title">
+                        <h5 class="panel-title">
                             <a data-toggle="collapse" data-parent="#displayGrouper" href="@string.Format("#collapse{0}", i)">
                                 @item.dep_time.ToShortTimeString() @item.dep_name <span class="glyphicon glyphicon-arrow-right"></span> @item.arr_name @item.arr_time.ToShortTimeString()
                             </a>
-                        </h4>
+                        </h5>
                     </div>
                     <div id="@string.Format("collapse{0}", i)" class="panel-collapse collapse">
                         <div class="panel-body">
@@ -106,7 +120,20 @@
                                     </div>
                                 </div>
                             </div>
-                            <!--Buy button linked to this record somehow, re-direct to buy page-->
+                            <div class="container">
+                                <div class="row">
+                                    <p class="col-xs-4"><input type="radio" name="ticket" id="@string.Format("stdClass{0}", i)" /> Standard Class - £15</p> <span class="col-xs-4"></span> <span class="col-xs-4"></span>
+                                </div>
+                                <div class="row">
+                                    <p class="col-xs-4"><input type="radio" name="ticket" id="@string.Format("fstClass{0}", i)" /> First Class - £20</p> <span class="col-xs-4"></span> <span class="col-xs-4"></span>
+                                </div>
+                                <div class="row">
+                                    <p class="col-xs-4">
+                                        <input type="button" value="Buy Ticket" onclick='location.href = "/Home/Ticket/" + "@item.dep_code" + "/" + "@item.arr_code" + "?" + document.getElementById("@string.Format("stdClass{0}", i)").checked + "?" + document.getElementById("@string.Format("fstClass{0}", i)").checked;' />
+                                    </p>
+                                    <span class="col-xs-4"></span> <span class="col-xs-4"></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -167,52 +167,77 @@ namespace Rail_Web.Controllers
 
         public void Read()
         {
-            client.stream = client.socket.GetStream(); //Get the socket stream.
-            client.stream.Read(client.buffer, 0, client.buffer.Length);
-
-            string dataRecieved = Encoding.UTF8.GetString(client.buffer).Trim('\0');
-
-            resultModel r = new resultModel();
-
-            if (dataRecieved == "NoServices" || dataRecieved == "NoConn")
+            try
             {
-                r.error = dataRecieved;
-                resultModel.modelInstance = r;
-            }
+                client.stream = client.socket.GetStream(); //Get the socket stream.
+                client.stream.Read(client.buffer, 0, client.buffer.Length);
 
-            else
-            {
-                List<Service> serviceList = new List<Service>();
+                string dataRecieved = Encoding.UTF8.GetString(client.buffer).Trim('\0');
 
-                //Try to deserialize if fails then most likely error message read this and display on screen as appropriate.
-                List<string> resultstring1;
+                resultModel r = new resultModel();
 
-                resultstring1 = JsonConvert.DeserializeObject<List<string>>(dataRecieved);
-
-                foreach (string s2 in resultstring1)
+                if (dataRecieved == "NoServices" || dataRecieved == "NoConn")
                 {
-                    Service temp = JsonConvert.DeserializeObject<Service>(s2);
-                    serviceList.Add(temp);
+                    r.error = dataRecieved;
+                    resultModel.modelInstance = r;
                 }
 
-                List<Service> serviceList1 = serviceList;
-
-                foreach (Service s in serviceList1)
+                else
                 {
-                    List<CallingPoints> temp = new List<CallingPoints>();
+                    List<Service> serviceList = new List<Service>();
 
-                    foreach (string item in s.Calls_at_Temp)
+                    //Try to deserialize if fails then most likely error message read this and display on screen as appropriate.
+                    List<string> resultstring1;
+
+                    resultstring1 = JsonConvert.DeserializeObject<List<string>>(dataRecieved);
+
+                    foreach (string s2 in resultstring1)
                     {
-                        temp.Add(JsonConvert.DeserializeObject<CallingPoints>(item));
+                        Service temp = JsonConvert.DeserializeObject<Service>(s2);
+                        serviceList.Add(temp);
                     }
 
-                    s.Calls_at = temp;
-                }
+                    List<Service> serviceList1 = serviceList;
 
-                r.resultValue = serviceList1;
+                    foreach (Service s in serviceList1)
+                    {
+                        List<CallingPoints> temp = new List<CallingPoints>();
+
+                        foreach (string item in s.Calls_at_Temp)
+                        {
+                            temp.Add(JsonConvert.DeserializeObject<CallingPoints>(item));
+                        }
+
+                        s.Calls_at = temp;
+                    }
+
+                    r.resultValue = serviceList1;
+                    resultModel.modelInstance = r;
+                }
+            }
+
+            catch
+            {
+                resultModel r = new resultModel();
+
+                r.error = "TechIssues"; //Can't connect to python client. 
+
                 resultModel.modelInstance = r;
             }
         }
+
+        public IActionResult Ticket()
+        {
+            string raw = Request.GetDisplayUrl();
+            bool stdTicked = Convert.ToBoolean(raw.Split('?')[1]);
+            bool fstTicked = Convert.ToBoolean(raw.Split('?')[2]);
+            string[] IDs = raw.Split('?')[0].Split('/');
+            string departID = IDs[5];
+            string arrivalID = IDs[6];
+
+            return View();
+        }
+
     }
 }
 

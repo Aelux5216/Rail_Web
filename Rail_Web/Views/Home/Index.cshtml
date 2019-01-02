@@ -59,11 +59,11 @@
 
 <div class="body-content">
     <div class="text-center">
-        <h2>Welcome to 'INSERT NAME HERE'</h2>
+        <h3>Welcome to 'INSERT NAME HERE'</h3>
         <p>Hello and welcome to 'INSERT NAME HERE'. Blah blah blah</p>
     </div>
     <div class="text-center">
-        <h3>Buy tickets or check your journey below:</h3>
+        <h4>Buy tickets or check your journey below:</h4>
         <b class="text-left">Leaving from:</b>
         @{SelectList selDeparture = new SelectList(stationList);}
         @Html.DropDownList("selDeparture", selDeparture, new { @class = "chosen" })
