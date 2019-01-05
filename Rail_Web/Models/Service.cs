@@ -26,8 +26,6 @@ namespace Rail_Web.Models
         public string arr_code { get; set; }
         [JsonProperty("arr_time")]
         public DateTime arr_time { get; set; }
-        [JsonProperty("arr_platform")]
-        public string arr_platform { get; set;}
         [JsonProperty("status")]
         public string status { get; set; }
         [JsonProperty("disrupt_reason")]

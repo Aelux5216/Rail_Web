@@ -1,0 +1,122 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Rail_Web.Areas.Identity.Data
+@inject SignInManager<Rail_WebUser> SignInManager
+@inject UserManager<Rail_WebUser> UserManager
+
+@model resultModel
+
+@{
+    ViewData["Title"] = "Purchase";
+}
+
+@{
+    List<Service> resultList = null;
+    string error = Model.error;
+
+    try
+    {
+        resultList = Model.resultValue;
+    }
+    catch
+    {
+
+    }
+}
+<h3>@ViewData["Title"]</h3>
+
+@{
+    if (error == "NoServices")
+    {
+        <div class="container">
+            <div class="row">
+                <img class="col-xs-8" src="~/images/NoServices.png" />
+                <span class="col-xs-4"></span>
+            </div>
+            <h4 style="color:red;">
+                Your session may have expired or the service may have departed already.
+                Please return to the home page to try again.
+            </h4>
+        </div>
+    }
+    else if (error == "NoConn")
+    {
+        //Darwin down
+    }
+    else if (error == "TechIssues")
+    {
+        //Middleware issues
+    }
+
+    if (resultList != null)
+    {
+        Service chosenService = resultList[0];
+
+        Ticket ticketDetails = Model.ticketInstance;
+
+        //Context.Response.Cookies.Append("name", "varible"); //set cookie value
+        //string s = Context.Request.Cookies["name"]; //get cookie value
+
+        <!--Different action based on user signed in or not when purchasing-->
+        if (SignInManager.IsSignedIn(User))
+        { //Check if it exists on the database then do this
+            <h5>Thank you for booking with Rail_Web</h5>
+            <p>
+                We have recieved your ticket booking and have sent you an email confirming the details below. Your reference number is <b>
+                                        @ticketDetails.reference
+                </b>,please keep this safe in case you need to contact us.
+            </p>
+
+            <div class="panel-group" id="displayGrouper">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h5 class="panel-title">
+                            Journey Details
+                        </h5>
+                    </div>
+                    <div id="collapse1" class="panel-collapse">
+                        <div class="panel-body">
+                            <div class="container">
+                                <row>
+                                    <p class="col-xs-6">From: @chosenService.dep_name</p> <p class="col-xs-6">To: @chosenService.arr_name</p>
+                                </row>
+                                <row>
+                                    <p class="col-xs-6">Scheduled departure time: @chosenService.dep_time.ToShortTimeString()</p> <p class="col-xs-6">Scheduled arrival time: @chosenService.arr_name</p>
+                                </row>
+                                <row>
+                                    <p class="col-xs-6">Departure date: @ticketDetails.date</p> <p class="col-xs-6">Operator: @chosenService.service_operator</p>
+                                </row>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h5 class="panel-title">
+                            Ticket details
+                        </h5>
+                    </div>
+                    <div class="container">
+                        <row>
+                            <p class="col-xs-8">Reference: @ticketDetails.reference</p> <p class="col-xs-8">To: @ticketDetails.classType</p>
+                        </row>
+                        <row>
+                            <p class="col-xs-8">Purchased at: @ticketDetails.time on @ticketDetails.date.Date</p> <p class="col-xs-8">Total cost: @ticketDetails.totalCost</p>
+                        </row>
+                    </div>
+                </div>
+            </div>
+        }
+
+        else
+        {
+
+        }
+    }
+
+    else
+    {
+        //Show 404
+    }
+}
+

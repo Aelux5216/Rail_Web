@@ -12,9 +12,9 @@
     }
     catch
     {
-        
+
     }
- }
+}
 
 <h3 class="text-left">Departure Times</h3>
 
@@ -49,9 +49,8 @@
             {
                 i++;
 
-                double minutes = item.arr_time.Subtract(item.dep_time).Minutes;
-                int hours = Convert.ToInt32(item.arr_time.Subtract(item.dep_time).TotalHours);
-
+                DateTime minutes = item.arr_time.Subtract(item.dep_time.TimeOfDay);
+                DateTime hours = item.arr_time.Subtract(item.dep_time.TimeOfDay);
                 <div class="panel panel-primary">
                     <div class="panel-heading">
                         <h5 class="panel-title">
@@ -80,15 +79,14 @@
                                 }
                             }
                             <p>This train will be departing from platform: @item.dep_platform</p>
-                            @if (hours < 1)
+                            @if (hours.Hour < 1)
                             {
-                                <p>@string.Format("Journey will take approximately: {0} minutes", minutes)</p>
+                                <p>@string.Format("Journey will take approximately: {0} minutes", minutes.Minute)</p>
                             }
                             else
                             {
-                                <p>@string.Format("Journey will take approximately: {0} hours and {1} minutes", hours, minutes)</p>
+                                <p>@string.Format("Journey will take approximately: {0} hours and {1} minutes", hours.Hour, minutes.Minute)</p>
                             }
-                            <p>This train will be arriving at platform: @item.arr_platform</p>
                             <div class="panel-group" id="displayGrouper2">
                                 <div class="panel panel-info">
                                     <div class="panel-heading">
@@ -101,18 +99,30 @@
                                             <div class="container">
                                                 @foreach (CallingPoints c in item.Calls_at)
                                                 {
-                                                    if (c.status != "On time")
+                                                    try
                                                     {
+                                                        DateTime t = Convert.ToDateTime(c.status);
+
                                                         <div class="row">
                                                             <p class="col-xs-3">@c.name</p> <p class="col-xs-3">Departing at: @c.time</p> <p class="col-xs-3">Status <span class="glyphicon glyphicon-alert" style="color:red;"></span> : Delayed, now scheduled to depart at @c.status</p><span class="col-xs-3"></span>
                                                         </div>
                                                     }
 
-                                                    else
+                                                    catch
                                                     {
+                                                        if (c.status != "On time")
+                                                        {
+                                                            <div class="row">
+                                                                <p class="col-xs-3">@c.name</p> <p class="col-xs-3">Departing at: @c.time</p> <p class="col-xs-3">Status <span class="glyphicon glyphicon-alert" style="color:red;"></span> : @c.status</p><span class="col-xs-3"></span>
+                                                            </div>
+                                                        }
+
+                                                        else
+                                                        {
                                                         <div class="row">
                                                             <p class="col-xs-3">@c.name</p> <p class="col-xs-3">Departing at: @c.time</p> <p class="col-xs-3">Status <span class="glyphicon glyphicon-alert"></span> : @c.status</p><span class="col-xs-3"></span>
                                                         </div>
+                                                        }
                                                     }
                                                 }
                                             </div>
@@ -129,7 +139,7 @@
                                 </div>
                                 <div class="row">
                                     <p class="col-xs-4">
-                                        <input type="button" value="Buy Ticket" onclick='location.href = "/Home/Ticket/" + "@item.dep_code" + "/" + "@item.arr_code" + "?" + document.getElementById("@string.Format("stdClass{0}", i)").checked + "?" + document.getElementById("@string.Format("fstClass{0}", i)").checked;' />
+                                        <input type="button" value="Buy Ticket" onclick='location.href = "/Home/Ticket/" + "@item.service_id" + "/" + "@item.arr_code" + "/" + document.getElementById("@string.Format("stdClass{0}", i)").checked + "/" + document.getElementById("@string.Format("fstClass{0}", i)").checked;' />
                                     </p>
                                     <span class="col-xs-4"></span> <span class="col-xs-4"></span>
                                 </div>
