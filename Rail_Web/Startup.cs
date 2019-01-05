@@ -58,8 +58,16 @@ namespace Rail_Web
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}/{id2?}");
+                name: "result",
+                template: "{controller=Home}/{action=Result}/{dep}/{arr}");
+
+                routes.MapRoute(
+                name: "Ticket",
+                template: "{controller=Home}/{action=Ticket}/{refer}/{arrCode}/{std}/{fst}");
+                   
+                routes.MapRoute(
+                name: "default",
+                template: "{controller=Home}/{action=Index}/{id?}/{id2?}");
             });
         }
     }

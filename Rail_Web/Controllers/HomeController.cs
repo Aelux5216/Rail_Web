@@ -23,15 +23,9 @@ namespace Rail_Web.Controllers
             return View();
         }
 
-        public IActionResult Result()
+        public IActionResult Result(string dep, string arr)
         {
-            //Get depart id
-            string raw = Request.GetDisplayUrl();
-            string departID = Request.GetDisplayUrl().Split('(')[1].Trim(')');
-            string departIDF = departID.Split('/')[0].Trim(')');
-            string arrivalID = Request.GetDisplayUrl().Split('(')[2].Trim(')');
-
-            string builder = "GetAll{" + departIDF + "{" + arrivalID;
+            string builder = "GetAll{" + dep + "{" + arr;
 
             //Grab times from middleware
             Send(builder);
@@ -123,7 +117,7 @@ namespace Rail_Web.Controllers
         {
             public TcpClient socket = null;    //Initalize default tcpclient values.
             public NetworkStream stream = null;
-            public byte[] buffer = new byte[8192];
+            public byte[] buffer = new byte[204800]; //Accomidate for big amount of departures.
         }
 
         ClientInfo client = new ClientInfo(); //Create new instance of client class.
@@ -226,16 +220,47 @@ namespace Rail_Web.Controllers
             }
         }
 
-        public IActionResult Ticket()
+        public IActionResult Ticket(string refer, string arrCode, bool std, bool fst)
         {
-            string raw = Request.GetDisplayUrl();
-            bool stdTicked = Convert.ToBoolean(raw.Split('?')[1]);
-            bool fstTicked = Convert.ToBoolean(raw.Split('?')[2]);
-            string[] IDs = raw.Split('?')[0].Split('/');
-            string departID = IDs[5];
-            string arrivalID = IDs[6];
+            Send("GetOne" + "{" + refer + "{" + arrCode);
 
-            return View();
+            Read();
+
+            string classType = null;
+
+            string cost = null;
+
+            if (std == true && fst == false)
+            {
+                classType = "Standard";
+                cost = "£15.00";
+            }
+
+            else if (std == false && fst == true)
+            {
+                classType = "First Class";
+                cost = "£20.00";
+            }
+
+            DateTime timestamp = DateTime.UtcNow;
+
+            Random rnd = new Random();
+
+            string randomList = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+            string reference = string.Format("{0}{1}{2}{3}{4}{5}{6}{7}{8}", randomList[rnd.Next(0, 35)], 
+                randomList[rnd.Next(0, 35)], randomList[rnd.Next(0, 35)], randomList[rnd.Next(0, 35)], 
+                randomList[rnd.Next(0, 35)], randomList[rnd.Next(0, 35)], randomList[rnd.Next(0, 35)], 
+                randomList[rnd.Next(0, 35)], randomList[rnd.Next(0, 35)]);
+
+            Service r = resultModel.modelInstance.resultValue[0];
+
+            Ticket returnedTicket = new Ticket { reference = reference, arrCode = arrCode, classType = classType, date = timestamp.Date,
+                time = timestamp.ToShortTimeString(), depCode = r.dep_code, totalCost = cost };
+
+            resultModel.modelInstance.ticketInstance = returnedTicket;
+
+            return View(resultModel.modelInstance);
         }
 
     }
