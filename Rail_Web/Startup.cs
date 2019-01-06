@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -62,9 +63,13 @@ namespace Rail_Web
                 template: "{controller=Home}/{action=Result}/{dep}/{arr}");
 
                 routes.MapRoute(
-                name: "Ticket",
-                template: "{controller=Home}/{action=Ticket}/{refer}/{arrCode}/{std}/{fst}");
-                   
+                name: "TicketCheck",
+                template: "{controller=Home}/{action=TicketCheck}/{refer}/{arrCode}/{std}/{fst}");
+
+                routes.MapRoute(
+                name: "TicketCheckPass",
+                template: "{controller=Home}/{action=TicketCheckPass}/{email}");
+
                 routes.MapRoute(
                 name: "default",
                 template: "{controller=Home}/{action=Index}/{id?}/{id2?}");

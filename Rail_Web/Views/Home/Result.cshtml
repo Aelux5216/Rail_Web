@@ -32,11 +32,11 @@
         }
         else if (error == "NoConn")
         {
-            //Darwin down
+            Context.Response.Redirect("/Home/TechnicalIssues"); //Darwin down
         }
         else if (error == "TechIssues")
         {
-            //Middleware issues
+            Context.Response.Redirect("/Home/TechnicalIssues"); //Middleware issues
         }
 
         if (resultList != null)
@@ -91,7 +91,7 @@
                                 <div class="panel panel-info">
                                     <div class="panel-heading">
                                         <p class="panel-title">
-                                            <a data-toggle="collapse" data-parent="#displayGrouper2" href="@string.Format("#collapse-info{0}",i)">This train calls at: @item.stops station/s</a>
+                                            <a data-toggle="collapse" data-parent="#displayGrouper2" href="@string.Format("#collapse-info{0}", i)">This train calls at: @item.stops station/s</a>
                                         </p>
                                     </div>
                                     <div id="@string.Format("collapse-info{0}", i)" class="panel-collapse collapse">
@@ -119,9 +119,9 @@
 
                                                         else
                                                         {
-                                                        <div class="row">
-                                                            <p class="col-xs-3">@c.name</p> <p class="col-xs-3">Departing at: @c.time</p> <p class="col-xs-3">Status <span class="glyphicon glyphicon-alert"></span> : @c.status</p><span class="col-xs-3"></span>
-                                                        </div>
+                                                            <div class="row">
+                                                                <p class="col-xs-3">@c.name</p> <p class="col-xs-3">Departing at: @c.time</p> <p class="col-xs-3">Status <span class="glyphicon glyphicon-alert"></span> : @c.status</p><span class="col-xs-3"></span>
+                                                            </div>
                                                         }
                                                     }
                                                 }
@@ -137,9 +137,14 @@
                                 <div class="row">
                                     <p class="col-xs-4"><input type="radio" name="ticket" id="@string.Format("fstClass{0}", i)" /> First Class - £20</p> <span class="col-xs-4"></span> <span class="col-xs-4"></span>
                                 </div>
+                                @{
+                                    string final = "";
+                                    final = item.service_id.Replace('+', '.');
+                                    final = final.Replace('/', '^');
+                                }
                                 <div class="row">
                                     <p class="col-xs-4">
-                                        <input type="button" value="Buy Ticket" onclick='location.href = "/Home/Ticket/" + "@item.service_id" + "/" + "@item.arr_code" + "/" + document.getElementById("@string.Format("stdClass{0}", i)").checked + "/" + document.getElementById("@string.Format("fstClass{0}", i)").checked;' />
+                                        <input type="button" value="Buy Ticket" onclick='location.href = "/Home/TicketCheck/" + "@final" + "/" + "@item.arr_code" + "/" + document.getElementById("@string.Format("stdClass{0}", i)").checked + "/" + document.getElementById("@string.Format("fstClass{0}", i)").checked;' />
                                     </p>
                                     <span class="col-xs-4"></span> <span class="col-xs-4"></span>
                                 </div>
@@ -148,11 +153,6 @@
                     </div>
                 </div>
             }
-        }
-
-        else
-        {
-            //Show trouble connecting error as this means resultValue is null which is not expected
         }
     }
 </div>
