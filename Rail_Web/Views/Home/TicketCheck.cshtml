@@ -1,0 +1,67 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Rail_Web.Areas.Identity.Data
+@inject SignInManager<Rail_WebUser> SignInManager
+@inject UserManager<Rail_WebUser> UserManager
+
+@model resultModel
+
+@{
+    ViewData["Title"] = "Purchase";
+}
+
+@{
+    List<Service> resultList = null;
+    string error = Model.error;
+
+    try
+    {
+        resultList = Model.resultValue;
+    }
+    catch
+    {
+
+    }
+}
+<h3>@ViewData["Title"]</h3>
+
+@{
+    if (error == "NoConn")
+    {
+        Context.Response.Redirect("/Home/TechnicalIssues"); //Darwin down
+    }
+    else if (error == "TechIssues")
+    {
+        Context.Response.Redirect("/Home/TechnicalIssues"); //Middleware issues
+    }
+
+    if (resultList != null)
+    {
+        Service chosenService = resultList[0];
+
+        Ticket ticketDetails = Model.ticketInstance;
+
+        <!--Different action based on user signed in or not when purchasing-->
+        if (SignInManager.IsSignedIn(User))
+        {
+            Context.Response.Redirect("/Home/Ticket");
+        }
+
+        else
+        {
+            <input type="email" id="inputEmail" placeholder="Please enter email.."/>
+
+            <div class="container">
+                <div class="row">
+                    <p class="center-block">
+                        <input style="margin-top:1em;" type="button" value="Search" onclick='location.href = "/Home/TicketGuestPass/" + document.getElementById("inputEmail").value;' />
+                    </p>
+                </div>
+            </div>
+        }
+    }
+
+    else
+    {
+        Context.Response.StatusCode = 404;
+    }
+}

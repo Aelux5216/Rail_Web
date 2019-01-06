@@ -20,7 +20,7 @@ namespace Rail_Web.Services
         public async Task Execute(string apiKey, string subject, string message, string email)
         {
             var client = new SendGridClient(apiKey);
-            var from = new EmailAddress("admin@undefinedname.com", "Admin");
+            var from = new EmailAddress("bookings@trainsnow.com", "Bookings");
             var to = new EmailAddress(email);
             string plainTextContent = message;
             string htmlContent = message;

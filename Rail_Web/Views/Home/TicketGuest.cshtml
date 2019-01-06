@@ -25,26 +25,13 @@
 <h3>@ViewData["Title"]</h3>
 
 @{
-    if (error == "NoServices")
-    {
-        <div class="container">
-            <div class="row">
-                <img class="col-xs-8" src="~/images/NoServices.png" />
-                <span class="col-xs-4"></span>
-            </div>
-            <h4 style="color:red;">
-                Your session may have expired or the service may have departed already.
-                Please return to the home page to try again.
-            </h4>
-        </div>
-    }
-    else if (error == "NoConn")
+    if (error == "NoConn")
     {
         Context.Response.Redirect("/Home/TechnicalIssues"); //Darwin down
     }
     else if (error == "TechIssues")
     {
-        Context.Response.Redirect("/Home/TechnicalIssues"); //Middleware issues 
+        Context.Response.Redirect("/Home/TechnicalIssues"); //Middleware issues
     }
 
     if (resultList != null)
@@ -54,12 +41,12 @@
         Ticket ticketDetails = Model.ticketInstance;
 
         <!--Different action based on user signed in or not when purchasing-->
-        if (SignInManager.IsSignedIn(User))
+        if (!SignInManager.IsSignedIn(User))
         {
             <h5>Thank you for booking with Trains Now.</h5>
             <p>
                 We have recieved your ticket booking and have sent you an email confirming the details below. Your reference number is:
-                <b>@ticketDetails.reference</b>, please keep this safe in case you need to contact us. These details are also availiable to view on your //Insertlink for order history.
+                <b>@ticketDetails.reference</b>, please keep this safe in case you need to contact us.
             </p>
 
             <div class="panel-group" id="displayGrouper">

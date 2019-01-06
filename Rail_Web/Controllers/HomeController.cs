@@ -12,11 +12,26 @@ using Microsoft.AspNetCore.Http;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Rail_Web.Services;
+using Rail_Web.Areas.Identity.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Rail_Web.Controllers
 {
     public class HomeController : Controller
     {
+        private UserManager<Rail_WebUser> _userManager;
+        private readonly IEmailSender _emailSender;
+        private readonly ControllerContext _context;
+
+        //class constructor
+        public HomeController(UserManager<Rail_WebUser> userManager, IEmailSender emailSender)
+        {
+            _userManager = userManager;
+            _emailSender = emailSender;
+        }
+       
         public IActionResult Index()
         {
             TempData["stations"] = getStations();
@@ -220,8 +235,12 @@ namespace Rail_Web.Controllers
             }
         }
 
-        public IActionResult Ticket(string refer, string arrCode, bool std, bool fst)
+        public async Task<IActionResult> TicketCheck(string refer, string arrCode, bool std, bool fst)
         {
+            refer = refer.Replace('.', '+');
+
+            refer = refer.Replace('^', '/');
+
             Send("GetOne" + "{" + refer + "{" + arrCode);
 
             Read();
@@ -248,21 +267,88 @@ namespace Rail_Web.Controllers
 
             string randomList = "abcdefghijklmnopqrstuvwxyz0123456789";
 
-            string reference = string.Format("{0}{1}{2}{3}{4}{5}{6}{7}{8}", randomList[rnd.Next(0, 35)], 
-                randomList[rnd.Next(0, 35)], randomList[rnd.Next(0, 35)], randomList[rnd.Next(0, 35)], 
-                randomList[rnd.Next(0, 35)], randomList[rnd.Next(0, 35)], randomList[rnd.Next(0, 35)], 
-                randomList[rnd.Next(0, 35)], randomList[rnd.Next(0, 35)]);
+            string reference = string.Format("{0}{1}{2}{3}{4}{5}{6}{7}{8}", randomList[rnd.Next(0, 35)],
+                randomList[rnd.Next(0, 35)], randomList[rnd.Next(0, 35)], randomList[rnd.Next(0, 35)],
+                randomList[rnd.Next(0, 35)], randomList[rnd.Next(0, 35)], randomList[rnd.Next(0, 35)],
+                randomList[rnd.Next(0, 35)], randomList[rnd.Next(0, 35)]).ToUpper();
 
             Service r = resultModel.modelInstance.resultValue[0];
 
-            Ticket returnedTicket = new Ticket { reference = reference, arrCode = arrCode, classType = classType, date = timestamp.Date,
-                time = timestamp.ToShortTimeString(), depCode = r.dep_code, totalCost = cost };
+            Ticket returnedTicket = new Ticket
+            {
+                reference = reference,
+                arrCode = arrCode,
+                classType = classType,
+                date = timestamp.Date,
+                time = timestamp.ToShortTimeString(),
+                depCode = r.dep_code,
+                totalCost = cost
+            };
 
             resultModel.modelInstance.ticketInstance = returnedTicket;
+
+            Rail_WebUser user = null;
+            string email = "";
+
+            try
+            {
+                user = await _userManager.GetUserAsync(User);
+                email = await _userManager.GetEmailAsync(user);
+
+                await SendEmail(email);
+            }
+            catch
+            {
+                
+            }
 
             return View(resultModel.modelInstance);
         }
 
+        public IActionResult Ticket()
+        {
+            return View(resultModel.modelInstance);
+        }
+
+        public IActionResult TicketGuest()
+        {
+            return View(resultModel.modelInstance);
+        }
+
+        public async Task<IActionResult> TicketGuestPass(string email)
+        {
+            await SendEmail(email);
+            return View("TicketGuest",resultModel.modelInstance);
+        }
+
+        public async Task SendEmail(string email)
+        {
+            Service r = resultModel.modelInstance.resultValue[0];
+            Ticket t = resultModel.modelInstance.ticketInstance;
+
+            await _emailSender.SendEmailAsync(
+                    email,
+        $"Thank you for traveling with us, your reciept is enclosed below",
+        "<style>table, td, th {border: 1px solid black;}table{border-collapse: collapse;}tr,th{padding: 5px;}</style>" +
+        "<h4>Journey Information</h4>" +
+        $"<h5>Ticket reference: {t.reference}</h5>" +
+        $"<h5>Journey: {r.dep_name} to {r.arr_name}</h5>" +
+        $"<h5>Travelling on: {t.date.ToShortDateString()}</h5>" +
+        "<table>" +
+        "<tr><th>Departs</th>" +
+        "<th>Arrives</th>" +
+        "<th>Operator</th>" +
+        $"</tr> <tr> <td>{r.dep_time.ToShortTimeString()} - {r.dep_name} </td>" +
+        $"<td> {r.arr_time.ToShortTimeString()} - {r.arr_name} </td>" +
+        $"<td> {r.service_operator} </td></tr></table>" +
+        $"<h5>Ticket Information</h5><h5>Ticket type: {t.classType}</h5><h5>Price: {t.totalCost}</h5>");
+            
+       }
+
+        public IActionResult TechnicalIssues()
+        {
+            return View();
+        }
     }
 }
 
