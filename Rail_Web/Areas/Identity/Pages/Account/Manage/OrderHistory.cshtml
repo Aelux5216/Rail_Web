@@ -1,0 +1,109 @@
+﻿@page
+@model OrderHistoryModel
+@{
+    ViewData["Title"] = "Order History";
+}
+
+<h3>@ViewData["Title"]</h3>
+
+@{
+    List<OrderHistoryModel.OrderHistory> orderHistoryList = null;
+    try
+    {
+        orderHistoryList = Model.Input;
+    }
+
+    catch
+    {
+
+    }
+
+    <div class="panel-group" id="displayGrouperMain">
+
+        @if (orderHistoryList.Count() != 0)
+        {
+            int i = 0;
+
+            foreach (OrderHistoryModel.OrderHistory item in orderHistoryList)
+            {
+                i++;
+
+                string[] values = item.TicketDet.Split(',');
+
+                string from = values[0];
+                string to = values[1];
+                string depTime = values[2];
+                string arrTime = values[3];
+                string date = values[4];
+                string serviceOperator = values[5];
+                string ticketType = values[6];
+                string time = values[7];
+                string cost = values[8];
+
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h5 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#displayGrouperMain" href="@string.Format("#collapse{0}", i)">
+                                Ticket Ref: @item.TicketRef Journey: @from to @to on @date
+                            </a>
+                        </h5>
+                    </div>
+                    <div id="@string.Format("collapse{0}", i)" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <div class="panel-group" id="displayGrouper">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h5 class="panel-title">
+                                            Journey Information
+                                        </h5>
+                                    </div>
+                                    <div id="collaps" class="panel-collapse">
+                                        <div class="panel-body">
+                                            <div class="container">
+                                                <row>
+                                                    <p class="col-xs-6">From: @from</p> <p class="col-xs-6">To: @to</p>
+                                                </row>
+                                                <row>
+                                                    <p class="col-xs-6">Scheduled departure time: @depTime<b style="color:black;">*</b></p> <p class="col-xs-6">Scheduled arrival time: @arrTime<b style="color:black;">*</b></p>
+                                                </row>
+                                                <row>
+                                                    <p class="col-xs-6">Departure date: @date</p> <p class="col-xs-6">Operator: @serviceOperator</p>
+                                                </row>
+                                                <p><b style="color:black;">*</b> Times stated on this reciept are liable to change.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h5 class="panel-title">
+                                            Ticket Information
+                                        </h5>
+                                    </div>
+                                    <div class="container">
+                                        <row>
+                                            <p class="col-xs-8">Reference: @item.TicketRef</p> <p class="col-xs-8">Ticket Type: @ticketType</p>
+                                        </row>
+                                        <row>
+                                            <p class="col-xs-8">Purchased at: @time on @date</p> <p class="col-xs-8">Total cost: @cost</p>
+                                        </row>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+
+        else
+        {
+            <p>No order history to display.</p>
+        }
+    </div>
+    }
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }

@@ -16,6 +16,7 @@ using Rail_Web.Services;
 using Rail_Web.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using static Rail_Web.Areas.Identity.Pages.Account.Manage.OrderHistoryModel;
 
 namespace Rail_Web.Controllers
 {
@@ -23,13 +24,14 @@ namespace Rail_Web.Controllers
     {
         private UserManager<Rail_WebUser> _userManager;
         private readonly IEmailSender _emailSender;
-        private readonly ControllerContext _context;
+        private readonly Rail_WebContext _context;
 
         //class constructor
-        public HomeController(UserManager<Rail_WebUser> userManager, IEmailSender emailSender)
+        public HomeController(UserManager<Rail_WebUser> userManager, IEmailSender emailSender, Rail_WebContext context)
         {
             _userManager = userManager;
             _emailSender = emailSender;
+            _context = context;
         }
        
         public IActionResult Index()
@@ -305,8 +307,42 @@ namespace Rail_Web.Controllers
             return View(resultModel.modelInstance);
         }
 
-        public IActionResult Ticket()
+        public async Task<IActionResult> Ticket()
         {
+            Rail_WebUser user = null;
+            string username = null;
+
+            try
+            {
+                user = await _userManager.GetUserAsync(User);
+
+                username = user.UserName;
+            }
+
+            catch
+            {
+
+            }
+
+            if (username != null)
+            {
+                Service serviceInst = resultModel.modelInstance.resultValue[0];
+
+                Models.Ticket ticketInst = resultModel.modelInstance.ticketInstance;
+
+                string ticketRef = ticketInst.reference;
+
+                string serviceDet = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8}", serviceInst.dep_name, serviceInst.arr_name, serviceInst.dep_time.ToShortTimeString()
+                    , serviceInst.arr_time.ToShortTimeString(), ticketInst.date.ToShortDateString(), serviceInst.service_operator,
+                    ticketInst.classType, ticketInst.time, ticketInst.totalCost);
+
+                OrderHistory o = new OrderHistory { Username = username, TicketRef = ticketRef, TicketDet = serviceDet };
+
+                _context.Add(o);
+
+                await _context.SaveChangesAsync();
+            }
+
             return View(resultModel.modelInstance);
         }
 
@@ -318,7 +354,7 @@ namespace Rail_Web.Controllers
         public async Task<IActionResult> TicketGuestPass(string email)
         {
             await SendEmail(email);
-            return View("TicketGuest",resultModel.modelInstance);
+            return RedirectToAction("TicketGuest"); //View("TicketGuest",resultModel.modelInstance);
         }
 
         public async Task SendEmail(string email)
