@@ -19,7 +19,6 @@ namespace Rail_Web
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-            .UseSetting("https_port", "443")
                 .UseStartup<Startup>();
     }
 }
