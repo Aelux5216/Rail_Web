@@ -134,7 +134,7 @@ namespace Rail_Web.Controllers
         {
             public TcpClient socket = null;    //Initalize default tcpclient values.
             public NetworkStream stream = null;
-            public byte[] buffer = new byte[204800]; //Accomidate for big amount of departures.
+            public byte[] buffer = new byte[409600]; //Accomidate for big amount of departures.
         }
 
         ClientInfo client = new ClientInfo(); //Create new instance of client class.
