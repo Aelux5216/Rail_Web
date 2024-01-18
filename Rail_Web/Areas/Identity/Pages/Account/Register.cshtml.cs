@@ -53,7 +53,7 @@ namespace Rail_Web.Areas.Identity.Pages.Account
             public string Email { get; set; }
 
             [Required(ErrorMessage = "{0} cannot be blank")]
-            [RegularExpression("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-.]).{8,20}$", ErrorMessage = "Password must have at least one lower case character, one upper case character, one number & one special character.")]
+            [RegularExpression("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-.]).{8,20}$", ErrorMessage = "Password must have at least one lower case character, one upper case character, one number, between 8-20 characters long & one special character.")]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
             public string Password { get; set; }
